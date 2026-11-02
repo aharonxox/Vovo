@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vovo Members — Setup Guide</title>
+<meta name="robots" content="noindex">
+<link rel="icon" type="image/png" href="/brand/favicon.png">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+<script>
+tailwind.config = { theme: { extend: {
+  fontFamily: { heading: ['"Plus Jakarta Sans"','sans-serif'], body: ['Inter','sans-serif'] },
+  colors: { vovo: { 300:'#A78BFA',400:'#8B5CF6',500:'#7C3AED',600:'#6D28D9',700:'#5B21B6' } }
+} } }
+</script>
+<style>
+  body { background:#0A0A0F; color:#E7E7EE; font-family:Inter,sans-serif; }
+  .font-heading { font-family:"Plus Jakarta Sans",sans-serif; letter-spacing:-0.03em; }
+  .glass { background:rgba(255,255,255,.04); backdrop-filter:blur(16px); border:1px solid rgba(255,255,255,.08); }
+  .glass-strong { background:rgba(255,255,255,.06); backdrop-filter:blur(24px); border:1px solid rgba(255,255,255,.1); }
+  .browser { background:#1B1B22; border:1px solid rgba(255,255,255,.1); border-radius:14px; overflow:hidden; box-shadow:0 20px 50px -12px rgba(0,0,0,.6); }
+  .browser-bar { display:flex; align-items:center; gap:8px; padding:10px 14px; background:#131318; border-bottom:1px solid rgba(255,255,255,.07); }
+  .browser-bar .dot { width:10px; height:10px; border-radius:50%; }
+  .url-pill { flex:1; background:rgba(255,255,255,.06); border-radius:8px; padding:5px 12px; font-size:12px; color:rgba(255,255,255,.5); font-family:ui-monospace,monospace; }
+  .mark { outline:2px solid #8B5CF6; outline-offset:2px; border-radius:6px; box-shadow:0 0 20px rgba(139,92,246,.55); position:relative; }
+  .mark::after { content:""; position:absolute; top:-8px; right:-8px; width:18px; height:18px; background:#8B5CF6; border-radius:50%; box-shadow:0 0 12px rgba(139,92,246,.9); }
+  .cta-glow { box-shadow:0 0 40px -8px rgba(139,92,246,.6); transition:transform .2s ease,box-shadow .2s ease; }
+  .cta-glow:hover { transform:scale(1.03); box-shadow:0 0 60px -6px rgba(139,92,246,.8); }
+</style>
+</head>
+<body class="font-body antialiased">
+
+<header class="glass border-b border-white/5 sticky top-0 z-40">
+  <nav class="max-w-4xl mx-auto flex items-center justify-between px-6 h-16">
+    <a href="/" class="flex items-center gap-2.5 font-heading font-extrabold text-xl tracking-tight">
+      <img src="/brand/vovo-mark.png" alt="Vovo" class="w-9 h-9 rounded-xl"> Vovo
+    </a>
+    <div class="flex items-center gap-3">
+      <span id="role-badge" class="hidden text-[11px] font-semibold uppercase tracking-wider px-3 py-1.5 rounded-full bg-vovo-500/15 border border-vovo-500/30 text-vovo-300"></span>
+      <button onclick="sessionStorage.removeItem('vovo_role');location.href='/'" class="text-sm text-white/50 hover:text-white transition-colors">Sign out</button>
+    </div>
+  </nav>
+</header>
+
+<main class="max-w-4xl mx-auto px-6 py-14">
+
+  <div class="text-center mb-14">
+    <div class="inline-flex items-center gap-2 glass rounded-full px-4 py-1.5 text-xs font-medium text-emerald-300 mb-6">
+      <i data-lucide="badge-check" class="w-3.5 h-3.5"></i> Member access unlocked
+    </div>
+    <h1 class="font-heading font-extrabold text-[clamp(2rem,5vw,3.25rem)] text-white leading-tight">Let's get Vovo running.</h1>
+    <p class="mt-4 text-white/55 max-w-xl mx-auto leading-relaxed">Two quick setup steps and your coach is live. First you'll grab a <b class="text-white/80">free Google Gemini API key</b> (that's what powers Vovo's brain — keeps it free), then connect Telegram.</p>
+  </div>
+
+  <!-- STEP 1 -->
+  <section class="mb-14">
+    <div class="flex items-center gap-3 mb-6">
+      <span class="w-9 h-9 rounded-xl bg-vovo-500 grid place-items-center font-heading font-extrabold text-white">1</span>
+      <h2 class="font-heading font-bold text-2xl text-white">Get your free Gemini API key</h2>
+    </div>
+    <p class="text-white/55 text-sm mb-8 leading-relaxed">Google gives every account a free Gemini key — no card, no trial, no catch. It takes about 60 seconds:</p>
+
+    <div class="space-y-8">
+      <div>
+        <p class="text-sm text-white/70 mb-3"><b class="text-white">a)</b> Open <a href="https://aistudio.google.com" target="_blank" rel="noopener" class="text-vovo-300 underline underline-offset-2">aistudio.google.com</a> and sign in with your Google account.</p>
+        <div class="browser">
+          <div class="browser-bar"><span class="dot bg-red-400/70"></span><span class="dot bg-amber-400/70"></span><span class="dot bg-emerald-400/70"></span><span class="url-pill">aistudio.google.com</span></div>
+          <div class="p-8 grid place-items-center gap-4" style="background:linear-gradient(135deg,#101018,#16161f)">
+            <div class="font-heading font-bold text-2xl text-white/85">Google AI Studio</div>
+            <div class="mark px-6 py-2.5 rounded-lg bg-white text-gray-800 text-sm font-medium flex items-center gap-2">Sign in with Google</div>
+            <div class="text-[11px] text-white/35">Click the sign-in button</div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <p class="text-sm text-white/70 mb-3"><b class="text-white">b)</b> Once inside, click <b class="text-white">“Get API key”</b> in the left sidebar.</p>
+        <div class="browser">
+          <div class="browser-bar"><span class="dot bg-red-400/70"></span><span class="dot bg-amber-400/70"></span><span class="dot bg-emerald-400/70"></span><span class="url-pill">aistudio.google.com/apikey</span></div>
+          <div class="flex" style="background:#14141c">
+            <div class="w-44 shrink-0 border-r border-white/8 p-4 space-y-3 text-[13px] text-white/55">
+              <div class="px-3 py-2">Playground</div>
+              <div class="mark px-3 py-2 rounded-lg bg-vovo-500/20 text-vovo-200 font-semibold flex items-center gap-2"><i data-lucide="key-round" class="w-3.5 h-3.5"></i>Get API key</div>
+              <div class="px-3 py-2">Usage</div>
+              <div class="px-3 py-2">Settings</div>
+            </div>
+            <div class="flex-1 p-8">
+              <div class="font-heading font-bold text-lg text-white/80">Gemini API keys</div>
+              <div class="mt-4 mark inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-500/90 text-white text-sm font-medium"><i data-lucide="plus" class="w-4 h-4"></i>Create API key</div>
+              <div class="mt-3 text-[11px] text-white/35">Then click “Create API key”</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <p class="text-sm text-white/70 mb-3"><b class="text-white">c)</b> Copy the key that appears — it starts with <code class="text-vovo-300 bg-white/5 px-1.5 py-0.5 rounded">AIza...</code></p>
+        <div class="browser">
+          <div class="browser-bar"><span class="dot bg-red-400/70"></span><span class="dot bg-amber-400/70"></span><span class="dot bg-emerald-400/70"></span><span class="url-pill">aistudio.google.com/apikey</span></div>
+          <div class="p-8" style="background:#14141c">
+            <div class="glass rounded-xl p-4 flex items-center justify-between max-w-md">
+              <code class="text-sm text-white/70">AIzaSy••••••••••••••••••</code>
+              <span class="mark text-xs px-3 py-1.5 rounded-lg bg-white/10 text-white/80 flex items-center gap-1.5"><i data-lucide="copy" class="w-3.5 h-3.5"></i>Copy</span>
+            </div>
+            <div class="mt-3 text-[11px] text-white/35">Keep this key private — it's yours.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- STEP 2 -->
+  <section class="mb-14">
+    <div class="flex items-center gap-3 mb-6">
+      <span class="w-9 h-9 rounded-xl bg-vovo-500 grid place-items-center font-heading font-extrabold text-white">2</span>
+      <h2 class="font-heading font-bold text-2xl text-white">Connect Vovo on Telegram</h2>
+    </div>
+    <div class="glass-strong rounded-2xl p-8 space-y-5 text-sm text-white/60 leading-relaxed">
+      <p><b class="text-white">a)</b> Open the bot: <a href="https://t.me/vovo_life_coach_bot" target="_blank" rel="noopener" class="text-vovo-300 underline underline-offset-2">t.me/vovo_life_coach_bot</a></p>
+      <p><b class="text-white">b)</b> Send <code class="text-vovo-300 bg-white/5 px-1.5 py-0.5 rounded">/start</code>, then paste your Gemini key when asked.</p>
+      <p><b class="text-white">c)</b> Set yourself up:</p>
+      <div class="glass rounded-xl p-5 font-mono text-[13px] space-y-2 text-white/75">
+        <div>/goals Ship the client site · Gym 4x this week</div>
+        <div>/schedule 07:00 Workout | 09:00 Deep work | 22:00 Sleep</div>
+        <div>/status</div>
+      </div>
+      <p class="text-white/45">That's it. Vovo takes it from there — daily check-ins, memory, and zero tolerance for excuses.</p>
+    </div>
+  </section>
+
+  <div class="glass rounded-2xl p-6 flex flex-col sm:flex-row items-center justify-between gap-5">
+    <div class="flex items-center gap-4">
+      <i data-lucide="life-buoy" class="w-8 h-8 text-vovo-300 shrink-0"></i>
+      <div>
+        <div class="font-heading font-bold text-white">Stuck on a step?</div>
+        <div class="text-sm text-white/50">Message support and we'll get you set up.</div>
+      </div>
+    </div>
+    <a href="mailto:aharonohevshalom123@gmail.com?subject=Vovo%20setup%20help" class="cta-glow shrink-0 inline-flex items-center gap-2 bg-vovo-500 hover:bg-vovo-400 text-white font-semibold px-6 h-11 rounded-xl text-sm">
+      <i data-lucide="mail" class="w-4 h-4"></i> Get help
+    </a>
+  </div>
+</main>
+
+<footer class="border-t border-white/5 py-8 text-center text-xs text-white/30">
+  Vovo — accountability, automated.
+</footer>
+
+<script>
+  lucide.createIcons();
+  const role = sessionStorage.getItem('vovo_role');
+  const paid = new URLSearchParams(location.search).get('paid') === '1';
+  if (!role && !paid) { location.replace('/#signin'); }
+  else {
+    const badge = document.getElementById('role-badge');
+    badge.textContent = role === 'owner' ? 'Owner · free access' : 'Member';
+    badge.classList.remove('hidden');
+  }
+</script>
+</body>
+</html>
