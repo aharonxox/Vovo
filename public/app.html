@@ -64,16 +64,20 @@ tailwind.config = { theme: { extend: {
 <div id="connect" class="hidden min-h-full grid place-items-center px-5 py-12 safe-top">
   <div class="card rounded-3xl p-7 max-w-md w-full text-center fade">
     <img src="/brand/vovo-mark.png" alt="Vovo" class="w-16 h-16 rounded-2xl mx-auto mb-5">
-    <h1 class="font-heading font-extrabold text-[28px] leading-tight text-pine-950">Welcome to Vovo</h1>
-    <p class="mt-3 text-[#5A6B5E] text-[16px] leading-relaxed">Vovo lives in <b class="text-pine-800">Telegram</b> — a free messaging app — so it can text you reminders on your phone.</p>
-    <ol class="text-left mt-6 space-y-4 text-[16px] text-[#2B3A2F]">
-      <li class="flex gap-3"><span class="w-7 h-7 shrink-0 rounded-full bg-pine-800 text-white grid place-items-center text-sm font-bold">1</span><span>Tap the green button below.</span></li>
-      <li class="flex gap-3"><span class="w-7 h-7 shrink-0 rounded-full bg-pine-800 text-white grid place-items-center text-sm font-bold">2</span><span>In Telegram, tap <b>Start</b>.</span></li>
-      <li class="flex gap-3"><span class="w-7 h-7 shrink-0 rounded-full bg-pine-800 text-white grid place-items-center text-sm font-bold">3</span><span>Tap <b>📱 Open my Vovo app</b>. That's it — you're in.</span></li>
-    </ol>
-    <a id="connect-btn" href="https://t.me/vovo_aharonenterprise_bot?start=web" class="btn w-full mt-7"><i data-lucide="send" class="w-5 h-5"></i> Open Vovo in Telegram</a>
-    <a href="https://apps.apple.com/app/telegram-messenger/id686449807" target="_blank" rel="noopener" class="block mt-4 text-[15px] text-pine-700 underline underline-offset-2">Don't have Telegram? Get it free on the App Store</a>
+    <h1 class="font-heading font-extrabold text-[28px] leading-tight text-pine-950">Welcome to Vovo 👋</h1>
+    <p class="mt-3 text-[#5A6B5E] text-[16px] leading-relaxed">Your personal coach. Tell it what you want to do, and it texts your phone when it's time.</p>
+
+    <form id="enter-form" class="mt-6 space-y-3 text-left">
+      <label class="block"><span class="text-[15px] font-semibold text-pine-900">Your member code</span>
+        <input id="enter-code" class="field mt-2 text-center tracking-widest uppercase" autocomplete="one-time-code" autocapitalize="characters" spellcheck="false" placeholder="VOVO-XXXXX"></label>
+      <button class="btn w-full"><i data-lucide="sparkles" class="w-5 h-5"></i>Open my coach</button>
+    </form>
     <p id="connect-err" class="mt-4 text-sm text-red-600 hidden"></p>
+
+    <div class="mt-6 pt-5 border-t border-[#E6EDE6] space-y-3">
+      <a href="/members.html" class="btn btn-soft w-full"><i data-lucide="badge-check" class="w-5 h-5"></i>I'm new — get Vovo</a>
+      <a href="https://t.me/vovo_aharonenterprise_bot" target="_blank" rel="noopener" class="block text-[14px] text-[#93A596] underline underline-offset-2">Already set up in Telegram? Open the bot</a>
+    </div>
   </div>
 </div>
 
@@ -90,6 +94,7 @@ tailwind.config = { theme: { extend: {
   <main class="flex-1 min-h-0 max-w-3xl w-full mx-auto">
     <!-- Chat -->
     <section data-view="chat" class="view h-full flex flex-col">
+      <div id="phone-card" class="hidden px-4 pt-4 shrink-0"></div>
       <div id="msgs" class="flex-1 overflow-y-auto px-4 py-5 space-y-3"></div>
       <div class="px-3 pb-3 pt-1 shrink-0">
         <div id="suggest" class="flex gap-2 overflow-x-auto no-scrollbar pb-2.5"></div>
@@ -103,7 +108,8 @@ tailwind.config = { theme: { extend: {
     <!-- Reminders -->
     <section data-view="reminders" class="view hidden h-full overflow-y-auto px-4 py-6">
       <h2 class="font-heading font-bold text-[26px] text-pine-950">Reminders</h2>
-      <p class="text-[15px] text-[#5A6B5E] mt-1 leading-relaxed">Vovo texts you on Telegram at these times. Easiest way: just tell Vovo in Chat, like <i>"gym at 5"</i>.</p>
+      <p class="text-[15px] text-[#5A6B5E] mt-1 leading-relaxed">Vovo texts your phone at these times. Easiest way: just tell Vovo in Chat, like <i>"gym at 5"</i>.</p>
+      <div id="rem-phone-note" class="hidden card rounded-2xl px-4 py-3.5 mt-4 text-[15px] text-[#2B3A2F]"></div>
       <form id="rem-form" class="card rounded-3xl p-5 mt-5 space-y-4">
         <label class="block"><span class="text-[15px] font-semibold text-pine-900">What should Vovo remind you?</span>
           <input id="rem-text" class="field mt-2" maxlength="200" placeholder="e.g. Go to the gym" required></label>
@@ -148,6 +154,14 @@ tailwind.config = { theme: { extend: {
 
       <div class="card rounded-3xl p-5 mt-5">
         <div class="flex items-center justify-between gap-3">
+          <span class="font-heading font-bold text-lg text-pine-950">Phone texts</span>
+          <span id="s-phonestate" class="text-xs px-2.5 py-1 rounded-full"></span>
+        </div>
+        <div id="phone-setup"></div>
+      </div>
+
+      <div class="card rounded-3xl p-5 mt-5">
+        <div class="flex items-center justify-between gap-3">
           <span class="font-heading font-bold text-lg text-pine-950">Free AI key</span>
           <span id="s-keystate" class="text-xs px-2.5 py-1 rounded-full"></span>
         </div>
@@ -166,6 +180,22 @@ tailwind.config = { theme: { extend: {
           <button type="button" id="s-savekey" class="btn w-full mt-3"><i data-lucide="key-round" class="w-5 h-5"></i>Connect key</button>
         </div>
         <button type="button" id="s-rmkey" class="hidden mt-3 text-[15px] text-[#7A8B7E] underline">Remove my key</button>
+      </div>
+
+      <div class="card rounded-3xl p-5 mt-5">
+        <span class="font-heading font-bold text-lg text-pine-950">How should Vovo act? 🎭</span>
+        <div id="persona-chips" class="flex flex-wrap gap-2 mt-4"></div>
+        <textarea id="s-persona" rows="2" class="field mt-3" maxlength="200" placeholder="Or describe it: e.g. tough army coach, gentle best friend, hype buddy who never gives up on me"></textarea>
+        <button type="button" id="s-savepersona" class="btn btn-soft w-full mt-3"><i data-lucide="check" class="w-5 h-5"></i>Save personality</button>
+        <p class="text-[13px] text-[#93A596] mt-3 text-center">Or just tell Vovo in chat — try <i>"act tougher on me"</i>.</p>
+      </div>
+
+      <div class="card rounded-3xl p-5 mt-5 flex items-center justify-between gap-4">
+        <div>
+          <span class="font-heading font-bold text-lg text-pine-950">Talk mode 🔊</span>
+          <p class="text-[15px] text-[#5A6B5E] mt-1 leading-relaxed">Vovo reads its replies out loud with your phone's voice. Free, built-in.</p>
+        </div>
+        <button type="button" id="voice-toggle" role="switch" aria-checked="false" class="shrink-0 w-14 h-8 rounded-full bg-[#DCE5DC] relative transition-colors"><span class="dot absolute top-1 left-1 w-6 h-6 rounded-full bg-white shadow transition-all"></span></button>
       </div>
 
       <form id="s-form" class="card rounded-3xl p-5 mt-5 space-y-4">
@@ -201,8 +231,9 @@ const TABS = [['chat','message-circle','Chat'],['reminders','alarm-clock','Remin
 const TZS = ['Asia/Jerusalem','Europe/London','Europe/Paris','Europe/Berlin','Europe/Moscow','Asia/Dubai','Asia/Kolkata','Asia/Singapore','Asia/Tokyo','Australia/Sydney','America/New_York','America/Chicago','America/Denver','America/Los_Angeles','America/Sao_Paulo','Africa/Johannesburg','UTC'];
 const SUGGEST = ["I want to work out at 4", "Wake me up every day at 7", "Help me plan my day", "I'm feeling lazy today"];
 const IDEAS = ["My job is…", "My goal this year is…", "I usually wake up at…", "What motivates me is…", "I struggle with…"];
+const PERSONAS = [['😤 Tough coach','Tough drill-sergeant coach who pushes hard and accepts no excuses'],['🤗 Gentle friend','Warm gentle best friend who is always kind and patient'],['🎉 Hype buddy','Super excited hype friend who celebrates everything loudly'],['🧘 Calm mentor','Calm wise mentor who speaks softly and thoughtfully']];
 const $ = (s) => document.querySelector(s);
-let token = null, state = null, sending = false, view = 'chat';
+let token = null, state = null, sending = false, view = 'chat', deepLink = null, phoneTimer = null;
 
 // Sign-in: Telegram Mini App > private link (#t=...) > saved on this device.
 // The #t= link is kept in the address bar so "Add to Home Screen" on iPhone stays signed in.
@@ -219,12 +250,17 @@ function md(s) { return esc(s).replace(/\*\*(.+?)\*\*|\*(.+?)\*/g, (m, a, b) => 
 function toast(msg, bad) { const t = $('#toast'); t.textContent = msg; t.className = `fixed left-1/2 -translate-x-1/2 bottom-28 md:bottom-8 z-50 px-5 py-3 rounded-2xl text-[15px] shadow-lg max-w-[90vw] text-center ${bad ? 'bg-red-600 text-white' : 'bg-pine-900 text-white'}`; clearTimeout(t._h); t._h = setTimeout(() => t.classList.add('hidden'), 3200); }
 function haptic(type = 'light') { try { TG?.HapticFeedback?.impactOccurred(type); } catch {} }
 function openExternal(url) { if (inTelegram) TG.openLink(url); else window.open(url, '_blank', 'noopener'); }
+function openTelegram(url) {
+  haptic('medium');
+  if (inTelegram && TG.openTelegramLink) { try { TG.openTelegramLink(url); return; } catch {} }
+  location.href = url; // same-tab so iPhone jumps into the Telegram app
+}
 
 async function api(action, data = {}) {
   const body = { token, initData: inTelegram ? TG.initData : undefined, browserTz, action, ...data };
   const r = await fetch('/api/app', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
   const j = await r.json().catch(() => ({ error: 'No connection — check your internet and try again.' }));
-  if (r.status === 401) { localStorage.removeItem('vovo_token'); showConnect(j.error); throw new Error(j.error); }
+  if (r.status === 401) { if (action !== 'enter') { localStorage.removeItem('vovo_token'); } showConnect(j.error); throw new Error(j.error); }
   if (!r.ok) throw new Error(j.error || 'Something went wrong — try again.');
   if (j.token && j.token !== token) { token = j.token; localStorage.setItem('vovo_token', token); }
   return j;
@@ -232,9 +268,29 @@ async function api(action, data = {}) {
 
 function showConnect(err) {
   $('#loading').classList.add('hidden'); $('#app').classList.add('hidden'); $('#connect').classList.remove('hidden');
-  if (err && token) { $('#connect-err').textContent = err; $('#connect-err').classList.remove('hidden'); }
+  if (err) { $('#connect-err').textContent = err; $('#connect-err').classList.remove('hidden'); }
   lucide.createIcons();
 }
+
+function showApp() {
+  $('#loading').classList.add('hidden'); $('#connect').classList.add('hidden');
+  $('#app').classList.remove('hidden'); $('#app').classList.add('flex'); renderTabs();
+}
+
+$('#enter-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const code = $('#enter-code').value.trim();
+  if (!code) return;
+  const b = e.target.querySelector('button'); b.disabled = true; b.textContent = 'Opening…';
+  try {
+    const j = await api('enter', { code });
+    apply(j); showApp();
+  } catch (err) {
+    $('#connect-err').textContent = err.message; $('#connect-err').classList.remove('hidden');
+  } finally {
+    b.disabled = false; b.innerHTML = '<i data-lucide="sparkles" class="w-5 h-5"></i>Open my coach'; lucide.createIcons();
+  }
+});
 
 function setView(v) { view = v; renderTabs(); haptic(); }
 function renderTabs() {
@@ -254,7 +310,7 @@ function bubble(m) {
 }
 function renderChat(pending) {
   const h = state.history;
-  const intro = !h.length ? bubble({ role: 'vovo', text: `👋 *Hey ${state.profile.name || 'there'}, I'm Vovo.*\n\nTell me what you want to do today and when — like *"gym at 5"* — and I'll text you on Telegram at that exact time.\n\nTap an idea below to try it 👇` }) : '';
+  const intro = !h.length ? bubble({ role: 'vovo', text: `👋 *Hey ${state.profile.name || 'there'}, I'm Vovo.*\n\nTell me what you want to do today and when — like *"gym at 5"* — and I'll text your phone at that exact time.\n\nTap an idea below to try it 👇` }) : '';
   $('#msgs').innerHTML = intro + h.map(bubble).join('') + (pending ? bubble({ role: 'user', text: pending }) + '<div class="flex fade"><div class="bubble-vovo px-4 py-4 typing flex gap-1"><span></span><span></span><span></span></div></div>' : '');
   $('#suggest').innerHTML = h.length > 6 ? '' : SUGGEST.map((s) => `<button type="button" class="chip">${esc(s)}</button>`).join('');
   scrollChat();
@@ -317,6 +373,57 @@ function renderInstall() {
     box.classList.remove('hidden');
   } else box.classList.add('hidden');
 }
+// One-time "connect my phone": fetch the t.me link once, then poll until linked.
+async function ensureDeepLink() {
+  if (deepLink || !state || state.profile.linked) return;
+  try { deepLink = (await api('connect_code')).deepLink; renderPhoneUI(); } catch {}
+}
+function renderPhoneUI() {
+  const linked = state?.profile?.linked;
+  const card = $('#phone-card');
+  const setup = $('#phone-setup');
+  const st = $('#s-phonestate');
+  const note = $('#rem-phone-note');
+  if (linked) {
+    card.classList.add('hidden'); note.classList.add('hidden');
+    st.textContent = 'Connected ✓';
+    st.className = 'text-xs font-semibold px-2.5 py-1 rounded-full bg-pine-50 text-pine-700 border border-pine-200';
+    setup.innerHTML = `<p class="text-[15px] text-[#5A6B5E] mt-2 leading-relaxed">Vovo texts this phone for your reminders. To switch phones, connect again.</p>
+      <button type="button" id="connect-phone" class="btn btn-soft w-full mt-4"><i data-lucide="send" class="w-5 h-5"></i>Connect a different phone</button>`;
+    lucide.createIcons();
+    if (phoneTimer) { clearInterval(phoneTimer); phoneTimer = null; }
+    return;
+  }
+  st.textContent = 'Not connected';
+  st.className = 'text-xs font-semibold px-2.5 py-1 rounded-full bg-candle-100 text-candle-600 border border-candle-300';
+  const btn = deepLink
+    ? `<button type="button" id="connect-phone" class="btn w-full mt-4"><i data-lucide="send" class="w-5 h-5"></i>Connect my phone (10 seconds)</button>`
+    : `<div class="mt-4 h-[50px] rounded-2xl bg-pine-50 animate-pulse"></div>`;
+  card.innerHTML = `<div class="card rounded-3xl p-5 border-l-4 border-l-candle-400 fade">
+    <div class="font-heading font-bold text-lg text-pine-950">One quick thing 📲</div>
+    <p class="text-[15px] text-[#5A6B5E] mt-1.5 leading-relaxed">So Vovo can text you reminders. One time only — you'll never need Telegram again.</p>
+    <ol class="mt-3 space-y-2 text-[15px] text-[#2B3A2F]">
+      <li class="flex gap-2.5"><span class="w-5 h-5 shrink-0 rounded-full bg-pine-800 text-white grid place-items-center text-[11px] font-bold">1</span><span>Tap the green button (opens Telegram — free app).</span></li>
+      <li class="flex gap-2.5"><span class="w-5 h-5 shrink-0 rounded-full bg-pine-800 text-white grid place-items-center text-[11px] font-bold">2</span><span>Tap <b>Start</b>. Done — come back here.</span></li>
+    </ol>
+    ${btn}
+    <p class="text-[13px] text-[#93A596] mt-3 text-center">No Telegram? Get it free on the <a href="https://apps.apple.com/app/telegram-messenger/id686449807" target="_blank" rel="noopener" class="underline">App Store</a> first.</p>
+  </div>`;
+  card.classList.remove('hidden');
+  setup.innerHTML = `<p class="text-[15px] text-[#5A6B5E] mt-2 leading-relaxed">One tap connects your phone so Vovo can text your reminders. Free, takes 10 seconds, one time only.</p>${btn}`;
+  note.innerHTML = `📲 <b>Connect your phone</b> (Chat tab or Setup) so Vovo can text these to you — it's one tap, one time.`;
+  note.classList.remove('hidden');
+  lucide.createIcons();
+  if (!phoneTimer) phoneTimer = setInterval(async () => {
+    if (!state || state.profile.linked) { clearInterval(phoneTimer); phoneTimer = null; return; }
+    try { const j = await api('load'); if (j.profile.linked) { apply(j); toast('🎉 Phone connected — you\'re all set!'); haptic('medium'); } } catch {}
+  }, 4000);
+}
+document.addEventListener('click', (e) => {
+  const b = e.target.closest('#connect-phone');
+  if (b && deepLink) openTelegram(deepLink);
+});
+
 function renderSettings() {
   const p = state.profile;
   $('#s-name').value = p.name || ''; $('#s-goals').value = p.goals; $('#s-schedule').value = p.schedule;
@@ -327,8 +434,10 @@ function renderSettings() {
   $('#key-steps').classList.toggle('hidden', p.hasOwnKey);
   $('#s-rmkey').classList.toggle('hidden', !p.hasOwnKey);
   $('#hello').textContent = p.name || '';
+  $('#s-persona').value = p.persona || '';
+  $('#persona-chips').innerHTML = PERSONAS.map(([label, v]) => `<button type="button" class="chip ${p.persona === v ? 'on' : ''}" data-persona="${esc(v)}">${label}</button>`).join('');
   $('#tg-link').href = `https://t.me/${state.bot}`;
-  renderInstall();
+  renderInstall(); renderPhoneUI(); renderVoice(); if (!p.linked) ensureDeepLink();
 }
 function renderAll(pending) { renderChat(pending); renderReminders(); renderKnowledge(); renderSettings(); renderQuick(); lucide.createIcons(); }
 function apply(j) { state = j; renderAll(); }
@@ -339,6 +448,7 @@ async function sendChat(text) {
   renderChat(text); lucide.createIcons();
   try {
     const j = await api('chat', { text }); apply(j);
+    if (j.reply) speak(j.reply);
     if (j.learned?.length) toast(`✨ Vovo learned something new about you`);
   } catch (e) { toast(e.message, true); renderChat(); $('#chat-input').value = text; }
   finally { sending = false; }
@@ -384,6 +494,38 @@ $('#s-savekey').addEventListener('click', async () => {
   finally { b.disabled = false; b.innerHTML = '<i data-lucide="key-round" class="w-5 h-5"></i>Connect key'; lucide.createIcons(); }
 });
 $('#s-rmkey').addEventListener('click', async () => { if (confirm('Remove your AI key?')) try { apply(await api('settings', { removeKey: true })); toast('Key removed'); } catch (err) { toast(err.message, true); } });
+$('#persona-chips').addEventListener('click', async (e) => {
+  const b = e.target.closest('[data-persona]'); if (!b) return;
+  $('#s-persona').value = b.dataset.persona;
+  try { apply(await api('settings', { persona: b.dataset.persona })); toast('🎭 Vovo will act like that now!'); haptic('medium'); }
+  catch (err) { toast(err.message, true); }
+});
+$('#s-savepersona').addEventListener('click', async () => {
+  try { apply(await api('settings', { persona: $('#s-persona').value })); toast('🎭 Saved — chat and see!'); haptic('medium'); }
+  catch (err) { toast(err.message, true); }
+});
+
+// Free talk mode: the phone's built-in voice reads Vovo's replies aloud.
+let voiceOn = localStorage.getItem('vovo_voice') === '1';
+function renderVoice() {
+  const t = $('#voice-toggle');
+  t.setAttribute('aria-checked', String(voiceOn));
+  t.className = `shrink-0 w-14 h-8 rounded-full relative transition-colors ${voiceOn ? 'bg-pine-600' : 'bg-[#DCE5DC]'}`;
+  t.querySelector('.dot').className = `dot absolute top-1 w-6 h-6 rounded-full bg-white shadow transition-all ${voiceOn ? 'left-7' : 'left-1'}`;
+}
+$('#voice-toggle').addEventListener('click', () => {
+  voiceOn = !voiceOn; localStorage.setItem('vovo_voice', voiceOn ? '1' : '0'); renderVoice(); haptic();
+  if (voiceOn) speak('Talk mode on!'); else speechSynthesis?.cancel();
+});
+function speak(text) {
+  try {
+    if (!voiceOn || !window.speechSynthesis) return;
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text.replace(/[*_`#]/g, '').slice(0, 400));
+    u.rate = 1.02; u.pitch = 1.05;
+    speechSynthesis.speak(u);
+  } catch {}
+}
 $('#tg-link').addEventListener('click', (e) => { if (inTelegram) { e.preventDefault(); TG.close(); } });
 $('#logout').addEventListener('click', () => { if (!confirm('Sign out on this device?')) return; localStorage.removeItem('vovo_token'); location.href = '/app.html'; });
 document.addEventListener('visibilitychange', async () => { if (!document.hidden && state && !sending) try { apply(await api('load')); } catch {} });
@@ -392,7 +534,7 @@ document.addEventListener('visibilitychange', async () => { if (!document.hidden
   if (!token && !inTelegram) return showConnect();
   try {
     apply(await api('load'));
-    $('#loading').classList.add('hidden'); $('#app').classList.remove('hidden'); $('#app').classList.add('flex'); renderTabs();
+    showApp();
   } catch (e) { if ($('#connect').classList.contains('hidden')) showConnect(e.message); }
 })();
 </script>

@@ -2,7 +2,7 @@ import {
   coach, sendMessage, tg, webLink, SITE, webhookSecret, encryptKey, validateGeminiKey, validTz, fmtLocal,
   sweepDueReminders, addReminder, getProfile, updateProfile, listReminders, cancelReminder, addKnowledge
 } from './_core.js';
-import { upsertUser, getReminder, LIMITS } from './_store.js';
+import { upsertUser, getReminder, consumeLinkCode, LIMITS } from './_store.js';
 
 const APP_URL = `${SITE}/app.html`;
 const appButton = (label = '📱 Open my Vovo app') => ({ text: label, web_app: { url: APP_URL } });
@@ -72,8 +72,23 @@ async function handleMessage(message) {
   if (!command && /^AIza[0-9A-Za-z_-]{30,}$/.test(text)) return connectKey(chatId, userId, message.message_id, text);
 
   switch (command) {
-    case '/start':
+    case '/start': {
+      // One-time "connect my phone" from the site — the only thing the bot is used for.
+      if (arg.startsWith('lnk_')) {
+        const r = await consumeLinkCode(arg, userId, message.from.first_name || null, String(chatId));
+        if (!r) {
+          return sendMessage(chatId, "🤔 That link didn't work. Go back to your Vovo app and tap *Connect my phone* again for a fresh one.", {
+            reply_markup: { inline_keyboard: [[{ text: '📱 Open Vovo', url: SITE + '/app.html' }]] }
+          });
+        }
+        return sendMessage(chatId, `🎉 *All done${r.name ? ', ' + r.name : ''}!* Your phone is connected.
+
+You can leave Telegram now — everything happens in your Vovo app. I'll text you here when it's time for your reminders.`, {
+          reply_markup: { inline_keyboard: [[{ text: '📱 Back to my Vovo app', url: webLink(r.userId) }]] }
+        });
+      }
       return sendMessage(chatId, WELCOME(message.from.first_name || 'there'), { reply_markup: WELCOME_KEYS });
+    }
     case '/help':
       return sendMessage(chatId, HOW, { reply_markup: { inline_keyboard: [[appButton()], [{ text: '🔑 Connect my free AI key', callback_data: 'help_key' }]] } });
     case '/web':

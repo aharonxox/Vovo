@@ -1,4 +1,5 @@
 // Vovo storage — Neon Postgres (DATABASE_URL). All per-user data is capped to keep the DB small.
+import crypto from 'node:crypto';
 import { neon } from '@neondatabase/serverless';
 
 export const sql = neon(process.env.DATABASE_URL);
@@ -23,6 +24,9 @@ export function ensureSchema() {
     await sql`ALTER TABLE vovo_users ADD COLUMN IF NOT EXISTS timezone TEXT`;
     await sql`ALTER TABLE vovo_users ADD COLUMN IF NOT EXISTS knowledge JSONB NOT NULL DEFAULT '[]'::jsonb`;
     await sql`ALTER TABLE vovo_users ADD COLUMN IF NOT EXISTS gemini_key_enc TEXT`;
+    await sql`ALTER TABLE vovo_users ADD COLUMN IF NOT EXISTS link_code TEXT`;
+    await sql`ALTER TABLE vovo_users ADD COLUMN IF NOT EXISTS linked_from TEXT`;
+    await sql`ALTER TABLE vovo_users ADD COLUMN IF NOT EXISTS persona TEXT`;
     try {
       await sql`CREATE TABLE IF NOT EXISTS vovo_reminders (
         id BIGSERIAL PRIMARY KEY, user_id TEXT NOT NULL, chat_id TEXT NOT NULL,
@@ -39,7 +43,7 @@ export const DEFAULT_TZ = 'Asia/Jerusalem';
 export async function getProfile(userId) {
   await ensureSchema();
   const rows = await sql`SELECT user_id AS "userId", name, chat_id AS "chatId", goals, schedule,
-    COALESCE(timezone, ${DEFAULT_TZ}) AS timezone, (timezone IS NOT NULL) AS "tzSet", knowledge, gemini_key_enc AS "geminiKeyEnc"
+    COALESCE(timezone, ${DEFAULT_TZ}) AS timezone, (timezone IS NOT NULL) AS "tzSet", knowledge, gemini_key_enc AS "geminiKeyEnc", link_code AS "linkCode", persona
     FROM vovo_users WHERE user_id = ${userId}`;
   return rows[0] || null;
 }
@@ -60,6 +64,7 @@ export async function updateProfile(userId, f) {
   if (has('schedule')) await sql`UPDATE vovo_users SET schedule = ${f.schedule}, updated_at = now() WHERE user_id = ${userId}`;
   if (has('timezone')) await sql`UPDATE vovo_users SET timezone = ${f.timezone}, updated_at = now() WHERE user_id = ${userId}`;
   if (has('geminiKeyEnc')) await sql`UPDATE vovo_users SET gemini_key_enc = ${f.geminiKeyEnc}, updated_at = now() WHERE user_id = ${userId}`;
+  if (has('persona')) await sql`UPDATE vovo_users SET persona = ${f.persona}, updated_at = now() WHERE user_id = ${userId}`;
 }
 
 export async function getHistory(userId, count = LIMITS.history) {
@@ -102,6 +107,41 @@ export async function deleteKnowledge(userId, id) {
 export async function allUsers() {
   await ensureSchema();
   return await sql`SELECT user_id AS "userId", name, chat_id AS "chatId", goals FROM vovo_users WHERE chat_id IS NOT NULL`;
+}
+
+// ---- one-time phone linking (site-first members) ----
+// Site members get a m_* account. One tap on a t.me start-link moves their whole
+// profile onto their real Telegram id and points reminders/notifications at it.
+export async function newLinkCode(userId) {
+  await ensureSchema();
+  const code = 'lnk_' + crypto.randomBytes(12).toString('hex');
+  await sql`UPDATE vovo_users SET link_code = ${code}, updated_at = now() WHERE user_id = ${userId}`;
+  return code;
+}
+
+export async function consumeLinkCode(code, tgUserId, tgName, tgChatId) {
+  await ensureSchema();
+  const rows = await sql`SELECT user_id AS "userId", name FROM vovo_users WHERE link_code = ${code}`;
+  const row = rows[0];
+  if (!row) return null;
+  if (!row.userId.startsWith('m_')) {
+    await sql`UPDATE vovo_users SET link_code = NULL, chat_id = ${String(tgChatId)},
+      name = COALESCE(name, ${tgName}), updated_at = now() WHERE user_id = ${row.userId}`;
+    return { userId: row.userId, name: row.name || tgName, member: false };
+  }
+  // Member account → adopt the Telegram identity so web (/web, Mini App) and bot agree.
+  await sql`UPDATE vovo_reminders SET user_id = ${tgUserId}, chat_id = ${String(tgChatId)} WHERE user_id = ${row.userId}`;
+  await sql`DELETE FROM vovo_users WHERE user_id = ${tgUserId} AND user_id <> ${row.userId}`;
+  await sql`UPDATE vovo_users SET user_id = ${tgUserId}, chat_id = ${String(tgChatId)}, link_code = NULL,
+    linked_from = ${row.userId}, name = COALESCE(name, ${tgName}), updated_at = now() WHERE user_id = ${row.userId}`;
+  return { userId: tgUserId, name: row.name || tgName, member: true };
+}
+
+// After a member links, their old m_* token should still work: follow the move.
+export async function resolveLinkedFrom(userId) {
+  await ensureSchema();
+  const rows = await sql`SELECT user_id AS "userId" FROM vovo_users WHERE linked_from = ${userId}`;
+  return rows[0]?.userId || null;
 }
 
 // ---- reminders ----

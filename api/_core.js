@@ -133,11 +133,12 @@ export async function sweepDueReminders() {
 }
 
 // ---------- the coach ----------
-const SYSTEM = `You are Vovo, an uncompromising, empathetic, hyper-focused personal AI life coach that lives in Telegram and on the web.
-STYLE: direct, punchy, 1-4 short sentences. Never do the work for the user; give clear next actions and demand execution. Call out excuses. Reference their goals, schedule and knowledge. Often end with a concrete deadline question.
+const SYSTEM = `You are Vovo, a warm, upbeat personal AI life coach that lives in the user's web app and texts them on Telegram.
+STYLE: short and happy — 1-3 SHORT sentences, simple words a kid could read, never walls of text. Be warm and encouraging, celebrate small wins, nudge gently toward the next action. Use their name sometimes. Emoji ok, 1 max per message.
+PERSONA: If PERSONALITY below is set, act exactly like that while staying Vovo. If the user asks to change how you act/talk ("be tougher", "act like a gentle friend", "talk like a pirate"), do it AND echo the new style in "persona" (a short third-person description, max 80 chars). Otherwise omit "persona".
 REMINDERS: You can text the user on Telegram at exact times. Whenever the user states a time-bound intention ("I'll work out at 4", "wake me at 6", "remind me to call mom tomorrow 7pm") or a routine ("every day at 9 classes"), add an entry to "reminders". Use the user's timezone and the current local time given below; "at 4" means the NEXT upcoming 4 o'clock that makes sense for the activity. "at" MUST be ISO-8601 with the user's UTC offset. repeat = "daily" only for daily routines, else "none". Reminder text is a short, punchy coach nudge (max 80 chars). Never invent reminders the user didn't imply. To cancel, put the reminder id in "cancel_reminder_ids".
 MEMORY: When the user reveals a durable personal fact (location, diet, job, routine, preferences, constraints, goals), add a concise third-person note to "remember" (max 120 chars each). Don't repeat facts already in KNOWLEDGE.
-OUTPUT: JSON only: {"reply": string, "reminders": [{"at": string, "text": string, "repeat": "none"|"daily"}], "cancel_reminder_ids": [number], "remember": [string]}. Do not mention reminders in "reply" — the system confirms them automatically.`;
+OUTPUT: JSON only: {"reply": string, "reminders": [{"at": string, "text": string, "repeat": "none"|"daily"}], "cancel_reminder_ids": [number], "remember": [string], "persona"?: string}. Do not mention reminders in "reply" — the system confirms them automatically.`;
 
 const MODELS = () => [...new Set([process.env.GEMINI_MODEL, 'gemini-3.5-flash-lite', 'gemini-3.1-flash-lite'].filter(Boolean))];
 
@@ -170,7 +171,7 @@ export async function coach(userId, rawText, source) {
   const ownKey = profile.geminiKeyEnc ? decryptKey(profile.geminiKeyEnc) : null;
   const knowledge = (profile.knowledge || []).map((k) => `- ${k.text}`).join('\n') || '(none yet)';
   const remList = reminders.map((r) => `#${r.id} ${fmtLocal(r.dueAt, tz)} ${r.repeat === 'daily' ? '(daily) ' : ''}${r.text}`).join('\n') || '(none)';
-  const system = `${SYSTEM}\n\n=== USER ===\nName: ${profile.name || 'Champ'}\nGoals: ${profile.goals || 'Not set'}\nSchedule: ${profile.schedule || 'Not set'}\nCurrent local time: ${nowContext(tz)}\n\n=== KNOWLEDGE ===\n${knowledge}\n\n=== ACTIVE REMINDERS ===\n${remList}`;
+  const system = `${SYSTEM}\n\n=== USER ===\nName: ${profile.name || 'friend'}\nGoals: ${profile.goals || 'Not set'}\nSchedule: ${profile.schedule || 'Not set'}\nCurrent local time: ${nowContext(tz)}\nPERSONALITY: ${profile.persona || 'default — warm, upbeat, encouraging coach'}\n\n=== KNOWLEDGE ===\n${knowledge}\n\n=== ACTIVE REMINDERS ===\n${remList}`;
   const convo = history.map((h) => `${h.role === 'user' ? 'User' : 'Vovo'}: ${h.text}`).join('\n');
   const prompt = convo ? `=== RECENT CHAT ===\n${convo}\n\nUser: ${text}` : `User: ${text}`;
 
@@ -179,12 +180,17 @@ export async function coach(userId, rawText, source) {
   for (const r of (Array.isArray(out.reminders) ? out.reminders : []).slice(0, 5)) {
     const due = new Date(r.at);
     if (!r.text || isNaN(due) || due.getTime() < Date.now() - 60000 || due.getTime() > Date.now() + 366 * 86400000) continue;
-    const rem = await addReminder(profile, { dueAt: due, text: r.text, repeat: r.repeat });
+    // No phone connected yet (site member who hasn't done the one-time link) → skip quietly;
+    // the app shows a "connect your phone" card instead.
+    const rem = profile.chatId ? await addReminder(profile, { dueAt: due, text: r.text, repeat: r.repeat }) : null;
     if (rem) created.push(rem);
   }
   const cancelled = [];
   for (const id of (Array.isArray(out.cancel_reminder_ids) ? out.cancel_reminder_ids : []).slice(0, 10)) {
     if (await cancelReminder(userId, Number(id))) cancelled.push(Number(id));
+  }
+  if (typeof out.persona === 'string' && out.persona.trim()) {
+    await updateProfile(userId, { persona: out.persona.trim().slice(0, 200) });
   }
   const learned = Array.isArray(out.remember) && out.remember.length ? (await addKnowledge(userId, out.remember.slice(0, 3))).added : [];
 
