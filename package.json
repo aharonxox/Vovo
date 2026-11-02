@@ -4,6 +4,7 @@
   "type": "module",
   "dependencies": {
     "@google/generative-ai": "^0.21.0",
+    "@neondatabase/serverless": "^1.0.0",
     "@upstash/redis": "^1.34.3"
   }
 }
