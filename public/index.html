@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vovo — The AI Life Coach That Won't Let You Off the Hook</title>
+<meta name="description" content="Vovo is a proactive AI accountability coach on Telegram. It learns your goals, checks in on schedule, and calls out your excuses — 100% free.">
+<meta property="og:title" content="Vovo — AI Life Coach">
+<meta property="og:description" content="Not a chatbot. A coach. Goals, schedules, and hourly accountability check-ins — straight to your Telegram.">
+<meta property="og:type" content="website">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      fontFamily: {
+        heading: ['"Plus Jakarta Sans"', 'sans-serif'],
+        body: ['Inter', 'sans-serif'],
+      },
+      colors: {
+        vovo: {
+          50: '#F0EDFF', 100: '#E0D9FF', 200: '#C4B4FF', 300: '#A78BFA',
+          400: '#8B5CF6', 500: '#7C3AED', 600: '#6D28D9', 700: '#5B21B6',
+          800: '#4C1D95', 900: '#2E1065',
+        }
+      }
+    }
+  }
+}
+</script>
+<style>
+  :root { --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E"); }
+  body { background: #0A0A0F; color: #E7E7EE; font-family: Inter, sans-serif; overflow-x: hidden; }
+  .font-heading { font-family: "Plus Jakarta Sans", sans-serif; letter-spacing: -0.03em; }
+  .grain::before { content: ""; position: fixed; inset: 0; background-image: var(--grain); pointer-events: none; z-index: 50; opacity: .6; }
+  .mesh {
+    position: absolute; inset: 0; overflow: hidden; z-index: 0;
+    background:
+      radial-gradient(ellipse 60% 50% at 20% 10%, rgba(124,58,237,.28), transparent 65%),
+      radial-gradient(ellipse 50% 40% at 85% 25%, rgba(56,189,248,.14), transparent 60%),
+      radial-gradient(ellipse 55% 55% at 60% 90%, rgba(167,139,250,.16), transparent 65%);
+  }
+  .glass {
+    background: rgba(255,255,255,.04);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(255,255,255,.08);
+  }
+  .glass-strong {
+    background: rgba(255,255,255,.06);
+    backdrop-filter: blur(24px);
+    border: 1px solid rgba(255,255,255,.1);
+  }
+  .cta-glow { box-shadow: 0 0 40px -8px rgba(139,92,246,.6), 0 4px 16px rgba(0,0,0,.4); transition: transform .2s ease, box-shadow .2s ease; }
+  .cta-glow:hover { transform: scale(1.03); box-shadow: 0 0 60px -6px rgba(139,92,246,.8), 0 6px 24px rgba(0,0,0,.5); }
+  .reveal { opacity: 0; transform: translateY(28px); transition: opacity .6s ease, transform .6s cubic-bezier(.4,0,.2,1); }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+  .card-hover { transition: transform .3s cubic-bezier(.4,0,.2,1), box-shadow .3s ease, border-color .3s ease; }
+  .card-hover:hover { transform: translateY(-5px); border-color: rgba(167,139,250,.35); box-shadow: 0 20px 50px -12px rgba(124,58,237,.25); }
+  .chat-bubble { animation: bubbleIn .5s cubic-bezier(.34,1.56,.64,1) both; }
+  @keyframes bubbleIn { from { opacity:0; transform: translateY(14px) scale(.96); } to { opacity:1; transform: translateY(0) scale(1); } }
+  .float-anim { animation: floaty 7s ease-in-out infinite; }
+  @keyframes floaty { 0%,100% { transform: translateY(0) rotate(-1deg); } 50% { transform: translateY(-14px) rotate(-1deg); } }
+  .typing span { width:6px; height:6px; border-radius:50%; background:#A78BFA; display:inline-block; animation:blink 1.2s infinite; }
+  .typing span:nth-child(2){ animation-delay:.2s } .typing span:nth-child(3){ animation-delay:.4s }
+  @keyframes blink { 0%,80%,100%{opacity:.25} 40%{opacity:1} }
+  @media (prefers-reduced-motion: reduce) { .reveal{transition:none;opacity:1;transform:none} .float-anim,.chat-bubble{animation:none} }
+</style>
+</head>
+<body class="grain font-body antialiased">
+
+<!-- NAV -->
+<header class="fixed top-0 inset-x-0 z-40 glass border-b border-white/5">
+  <nav class="max-w-6xl mx-auto flex items-center justify-between px-6 h-16">
+    <a href="#" class="flex items-center gap-2 font-heading font-extrabold text-xl tracking-tight">
+      <span class="w-8 h-8 rounded-xl bg-gradient-to-br from-vovo-400 to-vovo-700 grid place-items-center text-white text-sm">⚡</span>
+      Vovo
+    </a>
+    <div class="hidden md:flex items-center gap-8 text-sm text-white/60">
+      <a href="#how" class="hover:text-white transition-colors">How it works</a>
+      <a href="#features" class="hover:text-white transition-colors">Features</a>
+      <a href="#commands" class="hover:text-white transition-colors">Commands</a>
+    </div>
+    <a href="https://t.me/vovo_life_coach_bot" target="_blank" rel="noopener"
+       class="cta-glow bg-vovo-500 hover:bg-vovo-400 text-white font-semibold text-sm px-5 py-2.5 rounded-xl">
+      Start Coaching
+    </a>
+  </nav>
+</header>
+
+<!-- HERO -->
+<section class="relative min-h-screen flex items-center pt-24 pb-16">
+  <div class="mesh"></div>
+  <div class="relative z-10 max-w-6xl mx-auto px-6 grid lg:grid-cols-2 gap-16 items-center">
+    <div>
+      <div class="reveal inline-flex items-center gap-2 glass rounded-full px-4 py-1.5 text-xs font-medium text-vovo-300 mb-8">
+        <i data-lucide="zap" class="w-3.5 h-3.5"></i> Proactive · Persistent · 100% Free
+      </div>
+      <h1 class="reveal font-heading font-extrabold text-[clamp(2.75rem,6vw,4.75rem)] leading-[1.05] text-white" style="transition-delay:.05s">
+        A coach that<br>
+        <span class="bg-gradient-to-r from-vovo-300 via-vovo-400 to-sky-300 bg-clip-text text-transparent">won't let you off the hook.</span>
+      </h1>
+      <p class="reveal mt-6 text-lg text-white/55 max-w-[34rem] leading-relaxed" style="transition-delay:.1s">
+        Vovo lives in your Telegram. It learns your goals, holds you to your schedule, and checks in on its own — no excuses, no fluff, no hand-holding.
+      </p>
+      <div class="reveal mt-10 flex flex-wrap items-center gap-4" style="transition-delay:.15s">
+        <a href="https://t.me/vovo_life_coach_bot" target="_blank" rel="noopener"
+           class="cta-glow inline-flex items-center gap-2 bg-vovo-500 hover:bg-vovo-400 text-white font-bold px-8 h-14 rounded-2xl text-base">
+          <i data-lucide="send" class="w-5 h-5"></i> Message Vovo on Telegram
+        </a>
+        <a href="#how" class="inline-flex items-center gap-2 text-white/60 hover:text-white font-medium px-2 h-14 transition-colors">
+          See how it works <i data-lucide="arrow-down" class="w-4 h-4"></i>
+        </a>
+      </div>
+      <div class="reveal mt-10 flex items-center gap-6 text-xs text-white/40" style="transition-delay:.2s">
+        <span class="flex items-center gap-1.5"><i data-lucide="check-circle-2" class="w-4 h-4 text-vovo-400"></i> No app install</span>
+        <span class="flex items-center gap-1.5"><i data-lucide="check-circle-2" class="w-4 h-4 text-vovo-400"></i> Free forever</span>
+        <span class="flex items-center gap-1.5"><i data-lucide="check-circle-2" class="w-4 h-4 text-vovo-400"></i> Proactive check-ins</span>
+      </div>
+    </div>
+
+    <!-- Phone mockup -->
+    <div class="reveal relative mx-auto w-full max-w-[340px] float-anim" style="transition-delay:.15s">
+      <div class="absolute -inset-8 bg-vovo-500/20 blur-3xl rounded-full -z-10"></div>
+      <div class="glass-strong rounded-[2.5rem] p-3 shadow-2xl">
+        <div class="bg-[#0E0E16] rounded-[2rem] overflow-hidden">
+          <div class="flex items-center gap-3 px-5 py-4 border-b border-white/5">
+            <div class="w-9 h-9 rounded-full bg-gradient-to-br from-vovo-400 to-vovo-700 grid place-items-center text-sm">⚡</div>
+            <div>
+              <div class="text-sm font-semibold text-white">Vovo</div>
+              <div class="text-[11px] text-emerald-400 flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block"></span>online</div>
+            </div>
+          </div>
+          <div class="px-4 py-5 space-y-3 text-[13px] leading-snug">
+            <div class="chat-bubble glass rounded-2xl rounded-tl-md px-4 py-3 max-w-[85%] text-white/90" style="animation-delay:.2s">
+              🔥 <b>I am Vovo.</b> I'm not here to hold your hand. What are we executing on today?
+            </div>
+            <div class="chat-bubble bg-vovo-600/80 rounded-2xl rounded-tr-md px-4 py-3 max-w-[80%] ml-auto text-white" style="animation-delay:.8s">
+              /goals Ship the client site. Gym 4x this week.
+            </div>
+            <div class="chat-bubble glass rounded-2xl rounded-tl-md px-4 py-3 max-w-[85%] text-white/90" style="animation-delay:1.4s">
+              ✅ Goals locked in. No excuses now — I will hold you to this.
+            </div>
+            <div class="chat-bubble glass rounded-2xl rounded-tl-md px-4 py-3 max-w-[85%] text-white/90" style="animation-delay:2.0s">
+              ⚡ <b>ACCOUNTABILITY CHECK</b><br>Did you finish your deep-work block?
+              <div class="flex gap-2 mt-2.5">
+                <span class="text-[11px] px-2.5 py-1 rounded-lg bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">✅ Done</span>
+                <span class="text-[11px] px-2.5 py-1 rounded-lg bg-amber-500/20 text-amber-300 border border-amber-500/30">⏳ 10 min</span>
+                <span class="text-[11px] px-2.5 py-1 rounded-lg bg-red-500/20 text-red-300 border border-red-500/30">❌ Slacking</span>
+              </div>
+            </div>
+            <div class="chat-bubble typing glass rounded-2xl rounded-tl-md px-4 py-3 w-14 flex gap-1" style="animation-delay:2.6s">
+              <span></span><span></span><span></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section id="how" class="relative py-28">
+  <div class="max-w-6xl mx-auto px-6">
+    <div class="reveal max-w-2xl">
+      <div class="text-xs font-semibold uppercase tracking-[0.1em] text-vovo-400 mb-4">How it works</div>
+      <h2 class="font-heading font-extrabold text-[clamp(2rem,4vw,3rem)] text-white leading-tight">Three commands. Zero excuses.</h2>
+    </div>
+    <div class="mt-14 grid md:grid-cols-3 gap-6">
+      <div class="reveal glass card-hover rounded-2xl p-8">
+        <div class="w-12 h-12 rounded-xl bg-vovo-500/15 border border-vovo-500/25 grid place-items-center mb-6"><i data-lucide="target" class="w-6 h-6 text-vovo-300"></i></div>
+        <div class="text-xs text-white/35 font-semibold mb-1">STEP 01</div>
+        <h3 class="font-heading font-bold text-xl text-white mb-3">Set your goals</h3>
+        <p class="text-sm text-white/55 leading-relaxed">Send <code class="text-vovo-300 bg-white/5 px-1.5 py-0.5 rounded">/goals</code> once. Vovo stores them persistently and references them in every conversation.</p>
+      </div>
+      <div class="reveal glass card-hover rounded-2xl p-8" style="transition-delay:.08s">
+        <div class="w-12 h-12 rounded-xl bg-vovo-500/15 border border-vovo-500/25 grid place-items-center mb-6"><i data-lucide="calendar-clock" class="w-6 h-6 text-vovo-300"></i></div>
+        <div class="text-xs text-white/35 font-semibold mb-1">STEP 02</div>
+        <h3 class="font-heading font-bold text-xl text-white mb-3">Lock your schedule</h3>
+        <p class="text-sm text-white/55 leading-relaxed">Send <code class="text-vovo-300 bg-white/5 px-1.5 py-0.5 rounded">/schedule</code> with your routine. Vovo knows exactly when you said you'd be working.</p>
+      </div>
+      <div class="reveal glass card-hover rounded-2xl p-8" style="transition-delay:.16s">
+        <div class="w-12 h-12 rounded-xl bg-vovo-500/15 border border-vovo-500/25 grid place-items-center mb-6"><i data-lucide="bell-ring" class="w-6 h-6 text-vovo-300"></i></div>
+        <div class="text-xs text-white/35 font-semibold mb-1">STEP 03</div>
+        <h3 class="font-heading font-bold text-xl text-white mb-3">Get audited</h3>
+        <p class="text-sm text-white/55 leading-relaxed">Vovo pings you 3× a day with one-tap accountability buttons. Answer honestly — it remembers.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- BENTO FEATURES -->
+<section id="features" class="relative py-28">
+  <div class="mesh opacity-60"></div>
+  <div class="relative max-w-6xl mx-auto px-6">
+    <div class="reveal max-w-2xl">
+      <div class="text-xs font-semibold uppercase tracking-[0.1em] text-vovo-400 mb-4">Why Vovo</div>
+      <h2 class="font-heading font-extrabold text-[clamp(2rem,4vw,3rem)] text-white leading-tight">Not a chatbot. A drill sergeant with empathy.</h2>
+    </div>
+    <div class="mt-14 grid md:grid-cols-3 gap-6 auto-rows-[minmax(180px,auto)]">
+      <div class="reveal glass card-hover rounded-2xl p-8 md:col-span-2 flex flex-col justify-between">
+        <div>
+          <i data-lucide="brain" class="w-7 h-7 text-vovo-300 mb-5"></i>
+          <h3 class="font-heading font-bold text-2xl text-white mb-3">Powered by Gemini Flash</h3>
+          <p class="text-white/55 leading-relaxed max-w-md">A 1M-token context window means Vovo remembers your goals, your excuses, and your patterns — and responds in under a second.</p>
+        </div>
+        <div class="mt-6 flex gap-2 flex-wrap">
+          <span class="text-xs px-3 py-1.5 rounded-full glass text-white/60">1M context</span>
+          <span class="text-xs px-3 py-1.5 rounded-full glass text-white/60">~1s replies</span>
+          <span class="text-xs px-3 py-1.5 rounded-full glass text-white/60">1,500 req/day free</span>
+        </div>
+      </div>
+      <div class="reveal glass card-hover rounded-2xl p-8" style="transition-delay:.08s">
+        <i data-lucide="alarm-clock" class="w-7 h-7 text-vovo-300 mb-5"></i>
+        <h3 class="font-heading font-bold text-xl text-white mb-3">It messages you first</h3>
+        <p class="text-sm text-white/55 leading-relaxed">Scheduled audits at 8AM, 1PM, 6PM. You're not chasing a bot — it's chasing you.</p>
+      </div>
+      <div class="reveal glass card-hover rounded-2xl p-8" style="transition-delay:.12s">
+        <i data-lucide="database" class="w-7 h-7 text-vovo-300 mb-5"></i>
+        <h3 class="font-heading font-bold text-xl text-white mb-3">Long-term memory</h3>
+        <p class="text-sm text-white/55 leading-relaxed">Goals, schedules, and history persist in Redis. Close the app — Vovo doesn't forget.</p>
+      </div>
+      <div class="reveal glass card-hover rounded-2xl p-8 md:col-span-2 flex items-center gap-8" style="transition-delay:.16s">
+        <div class="flex-1">
+          <i data-lucide="shield-off" class="w-7 h-7 text-vovo-300 mb-5"></i>
+          <h3 class="font-heading font-bold text-xl text-white mb-3">Excuses get called out</h3>
+          <p class="text-sm text-white/55 leading-relaxed">Vovo's system prompt is engineered to kill procrastination on sight. Vague answers get pushed back — every time.</p>
+        </div>
+        <div class="hidden sm:block glass rounded-xl px-5 py-4 text-[13px] text-white/70 italic max-w-[220px]">
+          "That's not a reason, that's an excuse. You have 20 minutes — use 10 of them. Now."<span class="block mt-2 text-vovo-400 not-italic text-xs font-semibold">— Vovo</span>
+        </div>
+      </div>
+      <div class="reveal glass card-hover rounded-2xl p-8" style="transition-delay:.2s">
+        <i data-lucide="wallet" class="w-7 h-7 text-vovo-300 mb-5"></i>
+        <h3 class="font-heading font-bold text-xl text-white mb-3">$0/month</h3>
+        <p class="text-sm text-white/55 leading-relaxed">Runs entirely on free tiers: Telegram, Gemini, Vercel, Upstash. No subscription, ever.</p>
+      </div>
+      <div class="reveal glass card-hover rounded-2xl p-8" style="transition-delay:.24s">
+        <i data-lucide="smartphone" class="w-7 h-7 text-vovo-300 mb-5"></i>
+        <h3 class="font-heading font-bold text-xl text-white mb-3">Lives in Telegram</h3>
+        <p class="text-sm text-white/55 leading-relaxed">Every device, push notifications, inline buttons. No new app to download.</p>
+      </div>
+      <div class="reveal glass card-hover rounded-2xl p-8" style="transition-delay:.28s">
+        <i data-lucide="code-2" class="w-7 h-7 text-vovo-300 mb-5"></i>
+        <h3 class="font-heading font-bold text-xl text-white mb-3">Two files of code</h3>
+        <p class="text-sm text-white/55 leading-relaxed">Serverless webhook + cron. Fork it, tweak the personality, deploy your own coach in minutes.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- COMMANDS -->
+<section id="commands" class="relative py-28">
+  <div class="max-w-6xl mx-auto px-6">
+    <div class="reveal max-w-2xl">
+      <div class="text-xs font-semibold uppercase tracking-[0.1em] text-vovo-400 mb-4">Commands</div>
+      <h2 class="font-heading font-extrabold text-[clamp(2rem,4vw,3rem)] text-white leading-tight">Everything you need to say</h2>
+    </div>
+    <div class="reveal mt-12 glass rounded-2xl overflow-hidden">
+      <div class="divide-y divide-white/5">
+        <div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6 px-6 sm:px-8 py-6">
+          <code class="font-mono text-vovo-300 text-sm w-32 shrink-0">/start</code>
+          <p class="text-sm text-white/55">Onboard with Vovo and set up your profile.</p>
+        </div>
+        <div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6 px-6 sm:px-8 py-6">
+          <code class="font-mono text-vovo-300 text-sm w-32 shrink-0">/goals</code>
+          <p class="text-sm text-white/55">Set or review your persistent goals — e.g. <span class="text-white/35">/goals Gym 4x/wk, ship project Friday</span></p>
+        </div>
+        <div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6 px-6 sm:px-8 py-6">
+          <code class="font-mono text-vovo-300 text-sm w-32 shrink-0">/schedule</code>
+          <p class="text-sm text-white/55">Define your daily routine blocks Vovo holds you to.</p>
+        </div>
+        <div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6 px-6 sm:px-8 py-6">
+          <code class="font-mono text-vovo-300 text-sm w-32 shrink-0">/status</code>
+          <p class="text-sm text-white/55">Trigger an on-demand accountability check with tap-to-answer buttons.</p>
+        </div>
+        <div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6 px-6 sm:px-8 py-6">
+          <code class="font-mono text-vovo-300 text-sm w-32 shrink-0">anything else</code>
+          <p class="text-sm text-white/55">Just talk. Vovo coaches on whatever you bring — plans, blockers, wins, or excuses.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FINAL CTA -->
+<section class="relative py-32">
+  <div class="mesh"></div>
+  <div class="relative max-w-3xl mx-auto px-6 text-center">
+    <h2 class="reveal font-heading font-extrabold text-[clamp(2.25rem,5vw,3.75rem)] text-white leading-tight">Your move.</h2>
+    <p class="reveal mt-5 text-lg text-white/55 max-w-xl mx-auto" style="transition-delay:.08s">
+      The only thing between you and a coach that never sleeps is one message.
+    </p>
+    <a href="https://t.me/vovo_life_coach_bot" target="_blank" rel="noopener"
+       class="reveal cta-glow inline-flex items-center gap-2 bg-vovo-500 hover:bg-vovo-400 text-white font-bold px-10 h-14 rounded-2xl text-base mt-10" style="transition-delay:.15s">
+      <i data-lucide="send" class="w-5 h-5"></i> Talk to Vovo
+    </a>
+  </div>
+</section>
+
+<footer class="border-t border-white/5 py-10">
+  <div class="max-w-6xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-white/35">
+    <div class="flex items-center gap-2 font-heading font-bold text-white/60 text-sm">
+      <span class="w-6 h-6 rounded-lg bg-gradient-to-br from-vovo-400 to-vovo-700 grid place-items-center text-white text-[10px]">⚡</span> Vovo
+    </div>
+    <p>Accountability, automated. Built on a 100% free stack.</p>
+    <a href="https://github.com/aharonxox/vovo-coach" class="hover:text-white/70 transition-colors flex items-center gap-1.5">
+      <i data-lucide="github" class="w-4 h-4"></i> Source
+    </a>
+  </div>
+</footer>
+
+<script>
+  lucide.createIcons();
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); io.unobserve(e.target); } });
+  }, { threshold: 0.12 });
+  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+</script>
+</body>
+</html>
