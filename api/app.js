@@ -1,14 +1,15 @@
 // Web app API. Auth = signed link from the bot (/web).
 import {
-  coach, verifyWebToken, sendMessage, encryptKey, validateGeminiKey, validTz, fmtLocal, addReminder,
+  coach, verifyWebToken, verifyInitData, webToken,  sendMessage, encryptKey, validateGeminiKey, validTz, fmtLocal, addReminder,
   sweepDueReminders, getProfile, updateProfile, listReminders, cancelReminder, addKnowledge, BOT_USERNAME
 } from './_core.js';
-import { getHistory, deleteKnowledge, LIMITS } from './_store.js';
+import { getHistory, deleteKnowledge, upsertUser, LIMITS } from './_store.js';
 
 async function snapshot(userId) {
   const [p, history, reminders] = await Promise.all([getProfile(userId), getHistory(userId), listReminders(userId)]);
   return {
-    profile: { name: p.name, goals: p.goals || '', schedule: p.schedule || '', timezone: p.timezone, hasOwnKey: !!p.geminiKeyEnc },
+    token: webToken(userId),
+    profile: { name: p.name, goals: p.goals || '', schedule: p.schedule || '', timezone: p.timezone, tzSet: p.tzSet, hasOwnKey: !!p.geminiKeyEnc },
     knowledge: p.knowledge || [],
     reminders: reminders.map((r) => ({ ...r, local: fmtLocal(r.dueAt, p.timezone) })),
     history: history.map(({ role, text, src, ts }) => ({ role, text, src, ts })),
@@ -21,9 +22,17 @@ export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'POST only' });
   let body = req.body;
   if (typeof body === 'string') { try { body = JSON.parse(body); } catch { body = {}; } }
-  const userId = verifyWebToken(body?.token);
-  if (!userId) return res.status(401).json({ error: 'Link expired or invalid. Send /web to the bot for a fresh one.' });
-  const profile = await getProfile(userId);
+  let userId = verifyWebToken(body?.token);
+  if (!userId && body?.initData) {
+    const tgUser = verifyInitData(body.initData);
+    if (tgUser) { userId = tgUser.id; await upsertUser(userId, { name: tgUser.name, chatId: userId }); }
+  }
+  if (!userId) return res.status(401).json({ error: 'Please open Vovo from Telegram to sign in.' });
+  let profile = await getProfile(userId);
+  if (profile && !profile.tzSet && validTz(body.browserTz)) {
+    await updateProfile(userId, { timezone: body.browserTz });
+    profile = await getProfile(userId);
+  }
   if (!profile) return res.status(401).json({ error: 'Unknown user. Send /start to the bot first.' });
   sweepDueReminders().catch(() => {});
 

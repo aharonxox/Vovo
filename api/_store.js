@@ -39,7 +39,7 @@ export const DEFAULT_TZ = 'Asia/Jerusalem';
 export async function getProfile(userId) {
   await ensureSchema();
   const rows = await sql`SELECT user_id AS "userId", name, chat_id AS "chatId", goals, schedule,
-    COALESCE(timezone, ${DEFAULT_TZ}) AS timezone, knowledge, gemini_key_enc AS "geminiKeyEnc"
+    COALESCE(timezone, ${DEFAULT_TZ}) AS timezone, (timezone IS NOT NULL) AS "tzSet", knowledge, gemini_key_enc AS "geminiKeyEnc"
     FROM vovo_users WHERE user_id = ${userId}`;
   return rows[0] || null;
 }

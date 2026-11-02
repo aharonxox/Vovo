@@ -20,6 +20,22 @@ export function verifyWebToken(token) {
   const good = hmac('web:' + userId).slice(0, 32);
   return sig.length === good.length && crypto.timingSafeEqual(Buffer.from(sig), Buffer.from(good)) ? userId : null;
 }
+// Telegram Mini App sign-in: initData is signed by Telegram with our bot token.
+export function verifyInitData(initData, maxAgeSec = 7 * 86400) {
+  try {
+    const params = new URLSearchParams(String(initData || ''));
+    const hash = params.get('hash');
+    if (!hash || !process.env.TELEGRAM_TOKEN) return null;
+    params.delete('hash');
+    const check = [...params.entries()].sort(([a], [b]) => a.localeCompare(b)).map(([k, v]) => `${k}=${v}`).join('\n');
+    const key = crypto.createHmac('sha256', 'WebAppData').update(process.env.TELEGRAM_TOKEN).digest();
+    const good = crypto.createHmac('sha256', key).update(check).digest('hex');
+    if (good.length !== hash.length || !crypto.timingSafeEqual(Buffer.from(good), Buffer.from(hash))) return null;
+    if (Date.now() / 1000 - Number(params.get('auth_date') || 0) > maxAgeSec) return null;
+    const user = JSON.parse(params.get('user') || 'null');
+    return user?.id ? { id: String(user.id), name: user.first_name || null } : null;
+  } catch { return null; }
+}
 export const webLink = (userId) => `${SITE}/app.html#t=${webToken(userId)}`;
 export const webhookSecret = () => hmac('telegram-webhook').replace(/[^A-Za-z0-9_-]/g, '').slice(0, 48);
 

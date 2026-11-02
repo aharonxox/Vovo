@@ -1,21 +1,45 @@
 import {
-  coach, sendMessage, tg, webLink, webhookSecret, encryptKey, validateGeminiKey, validTz, fmtLocal,
+  coach, sendMessage, tg, webLink, SITE, webhookSecret, encryptKey, validateGeminiKey, validTz, fmtLocal,
   sweepDueReminders, addReminder, getProfile, updateProfile, listReminders, cancelReminder, addKnowledge
 } from './_core.js';
 import { upsertUser, getReminder, LIMITS } from './_store.js';
 
-const HELP =
-  "🔥 *I am Vovo.* I'm not here to hold your hand; I'm here to make sure you do what you said you'd do.\n\n" +
-  "Just talk to me. Say *\"I'll work out at 4\"* and I'll text you at 4.\n\n" +
-  "*Commands*\n" +
-  "/goals [your goals] — lock in goals\n" +
-  "/schedule [routine] — your daily routine\n" +
-  "/know [fact] — teach me about you\n" +
-  "/reminders — see & cancel reminders\n" +
-  "/web — open your Vovo web app\n" +
-  "/key [AIza...] — use your own free Gemini key\n" +
-  "/timezone [Area/City] — e.g. /timezone Asia/Jerusalem\n" +
-  "/status — accountability check";
+const APP_URL = `${SITE}/app.html`;
+const appButton = (label = '📱 Open my Vovo app') => ({ text: label, web_app: { url: APP_URL } });
+
+const WELCOME = (name) =>
+  `👋 *Hey ${name}, I'm Vovo — your personal coach.*\n\n` +
+  "No commands needed. Just text me like a friend:\n\n" +
+  "• _\"I want to work out at 4\"_ → I'll text you at 4\n" +
+  "• _\"Wake me up every day at 6\"_ → daily reminder\n" +
+  "• _\"I'm vegan and I work nights\"_ → I'll remember it\n\n" +
+  "Tap a button below to start 👇";
+
+const WELCOME_KEYS = {
+  inline_keyboard: [
+    [appButton()],
+    [{ text: '🔑 Connect my free AI key (1 min)', callback_data: 'help_key' }],
+    [{ text: '❓ How does Vovo work?', callback_data: 'help_how' }]
+  ]
+};
+
+const HOW =
+  "*How Vovo works*\n\n" +
+  "1️⃣ *Tell me your plans* — \"gym at 5\", \"study at 8 tonight\". I'll text you at that exact time.\n" +
+  "2️⃣ *Tap a button* when I check in: ✅ On it · ⏳ 10 min · ❌ Skip.\n" +
+  "3️⃣ *Tell me about yourself* — I remember your goals, routine and habits.\n" +
+  "4️⃣ *Open the app* (button below or the *Vovo* button next to where you type) to see your reminders and everything I know about you.\n\n" +
+  "Change your mind? Just say \"cancel my gym reminder\".";
+
+const KEY_HELP =
+  "*🔑 Connect your free AI key — 1 minute*\n\n" +
+  "1. Tap *Get my free key* below\n" +
+  "2. Sign in with your Google account\n" +
+  "3. Tap *Create API key*, then *Copy*\n" +
+  "4. Come back here and *paste it in this chat*\n\n" +
+  "That's it — I'll delete your message right away and keep the key locked. It's free from Google, no card needed.";
+
+const KEY_KEYS = { inline_keyboard: [[{ text: '🔗 Get my free key', url: 'https://aistudio.google.com/apikey' }]] };
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(200).send('Vovo Engine Online.');
@@ -26,6 +50,7 @@ export default async function handler(req, res) {
   try {
     if (callback_query) await handleCallback(callback_query);
     else if (message?.text) await handleMessage(message);
+    else if (message?.chat?.type === 'private') await sendMessage(message.chat.id, "🙏 I can only read typed messages for now — just type it out and I've got you.");
   } catch (error) {
     console.error('Vovo Processing Error:', error);
     const chatId = message?.chat?.id || callback_query?.message?.chat?.id;
@@ -44,11 +69,13 @@ async function handleMessage(message) {
   const arg = text.slice(cmd.length).trim();
   const command = cmd.startsWith('/') ? cmd.split('@')[0].toLowerCase() : null;
 
+  if (!command && /^AIza[0-9A-Za-z_-]{30,}$/.test(text)) return connectKey(chatId, userId, message.message_id, text);
+
   switch (command) {
     case '/start':
+      return sendMessage(chatId, WELCOME(message.from.first_name || 'there'), { reply_markup: WELCOME_KEYS });
     case '/help':
-      if (arg === 'web') return sendWebLink(chatId, userId);
-      return sendMessage(chatId, HELP);
+      return sendMessage(chatId, HOW, { reply_markup: { inline_keyboard: [[appButton()], [{ text: '🔑 Connect my free AI key', callback_data: 'help_key' }]] } });
     case '/web':
     case '/app':
       return sendWebLink(chatId, userId);
@@ -71,12 +98,12 @@ async function handleMessage(message) {
     case '/know': {
       if (!arg) return sendMessage(chatId, 'Teach me something about you: `/know I\'m vegan and start classes at 9`');
       const r = await addKnowledge(userId, [arg]);
-      return sendMessage(chatId, r.added.length ? `🧠 Noted. I know ${r.list.length}/${LIMITS.knowledgeItems} things about you.` : r.full ? `🧠 Knowledge is full (${LIMITS.knowledgeItems}). Delete some in /web.` : '🧠 Already knew that.');
+      return sendMessage(chatId, r.added.length ? `🧠 Noted. I know ${r.list.length}/${LIMITS.knowledgeItems} things about you.` : r.full ? `🧠 Knowledge is full (${LIMITS.knowledgeItems}). Open the app to delete some.` : '🧠 Already knew that.');
     }
     case '/knowledge': {
       const p = await getProfile(userId);
       const list = (p?.knowledge || []).map((k, i) => `${i + 1}. ${k.text}`).join('\n');
-      return sendMessage(chatId, list ? `🧠 *What I know about you:*\n${list}\n\nEdit it in /web` : 'I don\'t know anything about you yet. Use `/know ...`');
+      return sendMessage(chatId, list ? `🧠 *What I know about you:*\n${list}\n\nYou can edit this in the app.` : 'I don\'t know anything about you yet. Just tell me about yourself in chat.');
     }
     case '/reminders': {
       const p = await getProfile(userId);
@@ -87,12 +114,9 @@ async function handleMessage(message) {
       });
     }
     case '/key': {
-      await tg('deleteMessage', { chat_id: chatId, message_id: message.message_id });
-      if (!arg) return sendMessage(chatId, 'Send `/key AIza...` with your free Gemini key (get one at aistudio.google.com → Get API key). I delete the message right away.');
+      if (!arg) return sendMessage(chatId, KEY_HELP, { reply_markup: KEY_KEYS });
       if (arg.toLowerCase() === 'remove') { await updateProfile(userId, { geminiKeyEnc: null }); return sendMessage(chatId, '🔑 Key removed.'); }
-      if (!(await validateGeminiKey(arg))) return sendMessage(chatId, '❌ That key didn\'t work. Copy it again from aistudio.google.com → Get API key.');
-      await updateProfile(userId, { geminiKeyEnc: encryptKey(arg) });
-      return sendMessage(chatId, '🔑 *Key connected* (encrypted, message deleted). Vovo now runs on your own free Gemini key.');
+      return connectKey(chatId, userId, message.message_id, arg);
     }
     case '/timezone': {
       if (!arg || !validTz(arg)) return sendMessage(chatId, 'Send a valid timezone, e.g. `/timezone Asia/Jerusalem` or `/timezone America/New_York`');
@@ -116,9 +140,18 @@ async function handleMessage(message) {
   await sendMessage(chatId, reply);
 }
 
+async function connectKey(chatId, userId, messageId, key) {
+  await tg('deleteMessage', { chat_id: chatId, message_id: messageId });
+  if (!(await validateGeminiKey(key.trim()))) {
+    return sendMessage(chatId, "❌ Hmm, that key didn't work. Make sure you copied the whole thing (it starts with *AIza*) and paste it again.", { reply_markup: KEY_KEYS });
+  }
+  await updateProfile(userId, { geminiKeyEnc: encryptKey(key.trim()) });
+  return sendMessage(chatId, "✅ *You're all set!* Your free AI key is connected and locked away (I deleted your message).\n\nNow tell me: what's one thing you want to get done today, and when?");
+}
+
 function sendWebLink(chatId, userId) {
-  return sendMessage(chatId, '🖥️ *Your private Vovo web app* — chat, reminders and knowledge, synced with this chat. Don\'t share this link.', {
-    reply_markup: { inline_keyboard: [[{ text: 'Open Vovo web app', url: webLink(userId) }]] }
+  return sendMessage(chatId, '📱 *Your Vovo app* — chat, reminders and everything I know about you.\n\n*Want it on your iPhone home screen?* Tap *Open in Safari*, then tap the Share button ⬆️ → *Add to Home Screen*. (Private link — don\'t share it.)', {
+    reply_markup: { inline_keyboard: [[appButton()], [{ text: '🧭 Open in Safari (for Home Screen)', url: webLink(userId) }]] }
   });
 }
 
@@ -135,6 +168,8 @@ async function handleCallback(q) {
   const id = Number(idStr);
   await tg('answerCallbackQuery', { callback_query_id: q.id });
 
+  if (action === 'help_key') return sendMessage(chatId, KEY_HELP, { reply_markup: KEY_KEYS });
+  if (action === 'help_how') return sendMessage(chatId, HOW, { reply_markup: { inline_keyboard: [[appButton()]] } });
   if (STATUS_REPLIES[action]) return sendMessage(chatId, STATUS_REPLIES[action]);
   if (action === 'rem_done') return sendMessage(chatId, '🔥 That\'s execution. Report back when it\'s done.');
   if (action === 'rem_skip') return sendMessage(chatId, '❌ Skipping is a decision. What\'s the real reason — and when are you making it up?');

@@ -2,12 +2,19 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Vovo — Your Coach</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Vovo</title>
 <meta name="robots" content="noindex">
 <meta name="theme-color" content="#FBFCF9">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Vovo">
+<meta name="format-detection" content="telephone=no">
+<link rel="apple-touch-icon" href="/brand/vovo-mark.png">
 <link rel="icon" type="image/png" href="/brand/favicon.png">
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
 <script>
@@ -20,243 +27,373 @@ tailwind.config = { theme: { extend: {
 } } }
 </script>
 <style>
-  html, body { height:100%; }
-  body { background:#FBFCF9; color:#1C2B21; font-family:Inter,sans-serif; }
+  html, body { height:100%; overscroll-behavior:none; }
+  body { background:#FBFCF9; color:#1C2B21; font-family:Inter,sans-serif; -webkit-tap-highlight-color:transparent; -webkit-text-size-adjust:100%; }
   .font-heading { font-family:"Plus Jakarta Sans",sans-serif; letter-spacing:-0.03em; }
   .card { background:#fff; border:1px solid #E6EDE6; box-shadow:0 1px 2px rgba(16,61,34,.04),0 4px 12px -2px rgba(16,61,34,.05); }
-  .field { width:100%; background:#fff; border:1px solid #DCE5DC; border-radius:12px; padding:10px 14px; font-size:14px; outline:none; transition:border-color .2s, box-shadow .2s; }
+  /* 16px+ inputs stop iPhone from zooming in on focus */
+  .field { width:100%; background:#fff; border:1px solid #DCE5DC; border-radius:14px; padding:13px 15px; font-size:16px; outline:none; -webkit-appearance:none; appearance:none; transition:border-color .2s, box-shadow .2s; }
   .field:focus { border-color:#276B46; box-shadow:0 0 0 3px rgba(39,107,70,.12); }
-  .btn { display:inline-flex; align-items:center; justify-content:center; gap:8px; background:#14532D; color:#fff; font-weight:600; border-radius:12px; padding:0 18px; height:42px; font-size:14px; transition:transform .15s, background .2s; }
-  .btn:hover { background:#1B5E3B; } .btn:active { transform:scale(.98); } .btn:disabled { opacity:.5; }
-  .tab { color:#6B7C6F; } .tab.active { color:#14532D; }
+  .btn { display:inline-flex; align-items:center; justify-content:center; gap:8px; background:#14532D; color:#fff; font-weight:600; border-radius:14px; padding:0 20px; min-height:50px; font-size:16px; transition:transform .15s, background .2s; touch-action:manipulation; }
+  .btn:active { transform:scale(.97); background:#1B5E3B; } .btn:disabled { opacity:.5; }
+  .btn-soft { background:#F0F7F1; color:#14532D; border:1px solid #BCDCC6; }
+  .btn-soft:active { background:#DBEDE0; }
+  .chip { flex-shrink:0; padding:10px 16px; border-radius:999px; background:#fff; border:1px solid #DCE5DC; color:#2B3A2F; font-size:15px; touch-action:manipulation; }
+  .chip:active, .chip.on { background:#14532D; color:#fff; border-color:#14532D; }
+  .tab { color:#6B7C6F; touch-action:manipulation; } .tab.active { color:#14532D; font-weight:600; }
   .tab.active .dot { background:#D9A94A; }
-  .bubble-me { background:#14532D; color:#fff; border-radius:18px 18px 4px 18px; }
-  .bubble-vovo { background:#fff; border:1px solid #E6EDE6; border-radius:18px 18px 18px 4px; }
-  .typing span { width:6px; height:6px; border-radius:50%; background:#8FC3A1; display:inline-block; animation:b 1s infinite; }
+  .bubble-me { background:#14532D; color:#fff; border-radius:20px 20px 6px 20px; }
+  .bubble-vovo { background:#fff; border:1px solid #E6EDE6; border-radius:20px 20px 20px 6px; }
+  .typing span { width:7px; height:7px; border-radius:50%; background:#8FC3A1; display:inline-block; animation:b 1s infinite; }
   .typing span:nth-child(2){animation-delay:.15s} .typing span:nth-child(3){animation-delay:.3s}
   @keyframes b { 0%,80%,100%{transform:translateY(0);opacity:.5} 40%{transform:translateY(-4px);opacity:1} }
   .fade { animation:f .25s ease-out; } @keyframes f { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:none} }
+  .no-scrollbar::-webkit-scrollbar { display:none; } .no-scrollbar { scrollbar-width:none; }
+  .safe-top { padding-top:env(safe-area-inset-top); }
+  .safe-bottom { padding-bottom:max(env(safe-area-inset-bottom), 6px); }
+  #app { height:100vh; height:100dvh; }
   @media (prefers-reduced-motion: reduce) { * { animation:none !important; transition:none !important; } }
 </style>
 </head>
 <body class="font-body antialiased">
 
-<!-- Not connected -->
-<div id="connect" class="hidden min-h-full grid place-items-center px-6 py-16">
-  <div class="card rounded-3xl p-8 sm:p-10 max-w-md w-full text-center fade">
-    <img src="/brand/vovo-mark.png" alt="Vovo" class="w-16 h-16 rounded-2xl mx-auto mb-6">
-    <h1 class="font-heading font-extrabold text-3xl text-pine-950">Connect your Telegram</h1>
-    <p class="mt-3 text-[#5A6B5E] text-sm leading-relaxed">Your web app is tied to your Telegram, so reminders can reach your phone. Open the bot and tap <b class="text-pine-800">Start</b> — it sends you a private link back here.</p>
-    <a id="connect-btn" href="https://t.me/vovo_aharonenterprise_bot?start=web" target="_blank" rel="noopener" class="btn w-full mt-7 h-12"><i data-lucide="send" class="w-4 h-4"></i> Open Vovo on Telegram</a>
-    <p class="mt-4 text-xs text-[#93A596]">Already chatting with Vovo? Just send <code class="text-pine-700 bg-pine-50 px-1.5 py-0.5 rounded">/web</code></p>
-    <p id="connect-err" class="mt-4 text-xs text-red-600 hidden"></p>
+<!-- Loading -->
+<div id="loading" class="min-h-full grid place-items-center"><img src="/brand/vovo-mark.png" alt="Vovo" class="w-14 h-14 rounded-2xl animate-pulse"></div>
+
+<!-- Not signed in -->
+<div id="connect" class="hidden min-h-full grid place-items-center px-5 py-12 safe-top">
+  <div class="card rounded-3xl p-7 max-w-md w-full text-center fade">
+    <img src="/brand/vovo-mark.png" alt="Vovo" class="w-16 h-16 rounded-2xl mx-auto mb-5">
+    <h1 class="font-heading font-extrabold text-[28px] leading-tight text-pine-950">Welcome to Vovo</h1>
+    <p class="mt-3 text-[#5A6B5E] text-[16px] leading-relaxed">Vovo lives in <b class="text-pine-800">Telegram</b> — a free messaging app — so it can text you reminders on your phone.</p>
+    <ol class="text-left mt-6 space-y-4 text-[16px] text-[#2B3A2F]">
+      <li class="flex gap-3"><span class="w-7 h-7 shrink-0 rounded-full bg-pine-800 text-white grid place-items-center text-sm font-bold">1</span><span>Tap the green button below.</span></li>
+      <li class="flex gap-3"><span class="w-7 h-7 shrink-0 rounded-full bg-pine-800 text-white grid place-items-center text-sm font-bold">2</span><span>In Telegram, tap <b>Start</b>.</span></li>
+      <li class="flex gap-3"><span class="w-7 h-7 shrink-0 rounded-full bg-pine-800 text-white grid place-items-center text-sm font-bold">3</span><span>Tap <b>📱 Open my Vovo app</b>. That's it — you're in.</span></li>
+    </ol>
+    <a id="connect-btn" href="https://t.me/vovo_aharonenterprise_bot?start=web" class="btn w-full mt-7"><i data-lucide="send" class="w-5 h-5"></i> Open Vovo in Telegram</a>
+    <a href="https://apps.apple.com/app/telegram-messenger/id686449807" target="_blank" rel="noopener" class="block mt-4 text-[15px] text-pine-700 underline underline-offset-2">Don't have Telegram? Get it free on the App Store</a>
+    <p id="connect-err" class="mt-4 text-sm text-red-600 hidden"></p>
   </div>
 </div>
 
 <!-- App -->
-<div id="app" class="hidden h-full flex flex-col">
-  <header class="bg-white/85 backdrop-blur-md border-b border-[#E6EDE6] shrink-0">
-    <div class="max-w-5xl mx-auto flex items-center justify-between px-5 h-16">
-      <a href="/" class="flex items-center gap-2.5 font-heading font-extrabold text-xl text-pine-800"><img src="/brand/vovo-mark.png" alt="" class="w-9 h-9 rounded-xl"> Vovo</a>
-      <nav class="hidden md:flex items-center gap-1 text-sm font-medium" id="tabs-top"></nav>
-      <div class="flex items-center gap-2 text-xs text-[#5A6B5E]"><span class="w-2 h-2 rounded-full bg-pine-500"></span><span id="hello">Synced with Telegram</span></div>
+<div id="app" class="hidden flex flex-col">
+  <header class="bg-white/90 backdrop-blur-md border-b border-[#E6EDE6] shrink-0 safe-top">
+    <div class="max-w-3xl mx-auto flex items-center justify-between px-4 h-14">
+      <div class="flex items-center gap-2.5 font-heading font-extrabold text-xl text-pine-800"><img src="/brand/vovo-mark.png" alt="" class="w-8 h-8 rounded-xl"> Vovo</div>
+      <nav class="hidden md:flex items-center gap-1 text-sm" id="tabs-top"></nav>
+      <div class="flex items-center gap-1.5 text-[13px] text-[#5A6B5E]"><span class="w-2 h-2 rounded-full bg-pine-500"></span><span id="hello"></span></div>
     </div>
   </header>
 
-  <main class="flex-1 min-h-0 max-w-5xl w-full mx-auto">
+  <main class="flex-1 min-h-0 max-w-3xl w-full mx-auto">
     <!-- Chat -->
     <section data-view="chat" class="view h-full flex flex-col">
-      <div id="msgs" class="flex-1 overflow-y-auto px-5 py-6 space-y-3"></div>
-      <div class="px-5 pb-4 pt-2 shrink-0">
-        <div id="suggest" class="flex gap-2 overflow-x-auto pb-2 text-xs"></div>
-        <form id="chat-form" class="card rounded-2xl p-2 flex items-end gap-2">
-          <textarea id="chat-input" rows="1" maxlength="2000" placeholder="Tell Vovo your plan… e.g. I'll work out at 4" class="flex-1 resize-none bg-transparent px-3 py-2.5 text-[15px] outline-none max-h-40"></textarea>
-          <button class="btn h-11 w-11 !px-0 shrink-0" aria-label="Send"><i data-lucide="arrow-up" class="w-5 h-5"></i></button>
+      <div id="msgs" class="flex-1 overflow-y-auto px-4 py-5 space-y-3"></div>
+      <div class="px-3 pb-3 pt-1 shrink-0">
+        <div id="suggest" class="flex gap-2 overflow-x-auto no-scrollbar pb-2.5"></div>
+        <form id="chat-form" class="card rounded-[22px] p-1.5 flex items-end gap-1.5">
+          <textarea id="chat-input" rows="1" maxlength="2000" enterkeyhint="send" placeholder="Message Vovo…" class="flex-1 resize-none bg-transparent px-3 py-3 text-[16px] outline-none max-h-36"></textarea>
+          <button class="btn !min-h-0 h-11 w-11 !px-0 !rounded-full shrink-0" aria-label="Send"><i data-lucide="arrow-up" class="w-5 h-5"></i></button>
         </form>
       </div>
     </section>
 
     <!-- Reminders -->
-    <section data-view="reminders" class="view hidden h-full overflow-y-auto px-5 py-8">
-      <h2 class="font-heading font-bold text-2xl text-pine-950">Reminders</h2>
-      <p class="text-sm text-[#5A6B5E] mt-1">Vovo texts you on Telegram at these times. Easiest way to add one: just tell Vovo in chat.</p>
-      <form id="rem-form" class="card rounded-2xl p-5 mt-6 grid sm:grid-cols-[1fr_auto_auto_auto] gap-3">
-        <input id="rem-text" class="field" maxlength="200" placeholder="What? e.g. Gym — no excuses" required>
-        <input id="rem-at" type="datetime-local" class="field" required>
-        <select id="rem-repeat" class="field"><option value="none">Once</option><option value="daily">Every day</option></select>
-        <button class="btn"><i data-lucide="plus" class="w-4 h-4"></i>Add</button>
+    <section data-view="reminders" class="view hidden h-full overflow-y-auto px-4 py-6">
+      <h2 class="font-heading font-bold text-[26px] text-pine-950">Reminders</h2>
+      <p class="text-[15px] text-[#5A6B5E] mt-1 leading-relaxed">Vovo texts you on Telegram at these times. Easiest way: just tell Vovo in Chat, like <i>"gym at 5"</i>.</p>
+      <form id="rem-form" class="card rounded-3xl p-5 mt-5 space-y-4">
+        <label class="block"><span class="text-[15px] font-semibold text-pine-900">What should Vovo remind you?</span>
+          <input id="rem-text" class="field mt-2" maxlength="200" placeholder="e.g. Go to the gym" required></label>
+        <div>
+          <span class="text-[15px] font-semibold text-pine-900">When?</span>
+          <div id="rem-quick" class="flex gap-2 overflow-x-auto no-scrollbar mt-2 pb-1"></div>
+          <input id="rem-at" type="datetime-local" class="field mt-2" required>
+        </div>
+        <label class="flex items-center justify-between gap-3 py-1 cursor-pointer">
+          <span class="text-[15px] font-semibold text-pine-900">Repeat every day</span>
+          <input id="rem-daily" type="checkbox" class="w-6 h-6 accent-[#14532D]">
+        </label>
+        <button class="btn w-full"><i data-lucide="alarm-clock-plus" class="w-5 h-5"></i>Set reminder</button>
       </form>
-      <div id="rem-list" class="mt-6 space-y-2"></div>
+      <h3 class="font-heading font-bold text-lg text-pine-950 mt-8">Coming up</h3>
+      <div id="rem-list" class="mt-3 space-y-2.5"></div>
     </section>
 
-    <!-- Knowledge -->
-    <section data-view="knowledge" class="view hidden h-full overflow-y-auto px-5 py-8">
-      <div class="flex items-end justify-between gap-4">
+    <!-- About me -->
+    <section data-view="knowledge" class="view hidden h-full overflow-y-auto px-4 py-6">
+      <div class="flex items-start justify-between gap-3">
         <div>
-          <h2 class="font-heading font-bold text-2xl text-pine-950">What Vovo knows about you</h2>
-          <p class="text-sm text-[#5A6B5E] mt-1">Facts Vovo uses in every reply. It also learns from chat automatically.</p>
+          <h2 class="font-heading font-bold text-[26px] text-pine-950">About me</h2>
+          <p class="text-[15px] text-[#5A6B5E] mt-1 leading-relaxed">The more Vovo knows, the better it coaches you. It also picks things up from chat on its own.</p>
         </div>
         <span id="k-count" class="shrink-0 text-xs font-semibold px-3 py-1.5 rounded-full bg-candle-100 border border-candle-300 text-candle-600"></span>
       </div>
-      <form id="k-form" class="card rounded-2xl p-5 mt-6 flex flex-col sm:flex-row gap-3">
-        <input id="k-text" class="field" maxlength="400" placeholder="e.g. I'm in Israel, vegan, classes start at 9" required>
-        <button class="btn shrink-0"><i data-lucide="brain" class="w-4 h-4"></i>Teach Vovo</button>
+      <form id="k-form" class="card rounded-3xl p-5 mt-5 space-y-3">
+        <span class="text-[15px] font-semibold text-pine-900">Tell Vovo something about you</span>
+        <div id="k-ideas" class="flex gap-2 overflow-x-auto no-scrollbar pb-1"></div>
+        <textarea id="k-text" rows="2" class="field" maxlength="400" placeholder="e.g. I'm a student and I work evenings" required></textarea>
+        <button class="btn w-full"><i data-lucide="sparkles" class="w-5 h-5"></i>Save</button>
       </form>
-      <div id="k-list" class="mt-6 grid sm:grid-cols-2 gap-3"></div>
+      <div id="k-list" class="mt-5 space-y-2.5"></div>
     </section>
 
-    <!-- Settings -->
-    <section data-view="settings" class="view hidden h-full overflow-y-auto px-5 py-8">
-      <h2 class="font-heading font-bold text-2xl text-pine-950">Your setup</h2>
-      <form id="s-form" class="card rounded-2xl p-6 mt-6 space-y-5 max-w-2xl">
-        <label class="block"><span class="text-sm font-medium text-pine-900">Name</span><input id="s-name" class="field mt-1.5" maxlength="60"></label>
-        <label class="block"><span class="text-sm font-medium text-pine-900">Goals</span><textarea id="s-goals" rows="2" class="field mt-1.5" maxlength="600" placeholder="Gym 4x/week · Ship the client site by Friday"></textarea></label>
-        <label class="block"><span class="text-sm font-medium text-pine-900">Daily routine</span><textarea id="s-schedule" rows="2" class="field mt-1.5" maxlength="600" placeholder="06:00 Wake · 09:00 Classes · 18:00 Build"></textarea></label>
-        <label class="block"><span class="text-sm font-medium text-pine-900">Timezone</span><select id="s-tz" class="field mt-1.5"></select></label>
-        <div class="border-t border-[#EAEFEA] pt-5">
-          <div class="flex items-center justify-between gap-3">
-            <span class="text-sm font-medium text-pine-900">Your Gemini key</span>
-            <span id="s-keystate" class="text-xs px-2.5 py-1 rounded-full"></span>
-          </div>
-          <input id="s-key" type="password" autocomplete="off" class="field mt-1.5" placeholder="AIza… (free at aistudio.google.com)">
-          <p class="text-xs text-[#93A596] mt-1.5">Stored encrypted. <a href="/members.html#key" class="text-pine-700 underline">How to get one</a> · <button type="button" id="s-rmkey" class="text-pine-700 underline hidden">Remove key</button></p>
+    <!-- Setup -->
+    <section data-view="settings" class="view hidden h-full overflow-y-auto px-4 py-6">
+      <h2 class="font-heading font-bold text-[26px] text-pine-950">Setup</h2>
+
+      <div id="install" class="hidden card rounded-3xl p-5 mt-5 border-l-4 border-l-candle-400"></div>
+
+      <div class="card rounded-3xl p-5 mt-5">
+        <div class="flex items-center justify-between gap-3">
+          <span class="font-heading font-bold text-lg text-pine-950">Free AI key</span>
+          <span id="s-keystate" class="text-xs px-2.5 py-1 rounded-full"></span>
         </div>
-        <button class="btn"><i data-lucide="check" class="w-4 h-4"></i>Save</button>
+        <div id="key-steps">
+          <p class="text-[15px] text-[#5A6B5E] mt-2 leading-relaxed">Google gives you a free key that powers your coach. Takes 1 minute, no card needed.</p>
+          <ol class="mt-4 space-y-3 text-[15px] text-[#2B3A2F]">
+            <li class="flex gap-3"><span class="w-6 h-6 shrink-0 rounded-full bg-pine-800 text-white grid place-items-center text-xs font-bold">1</span><span>Tap <b>Get my free key</b> and sign in with Google.</span></li>
+            <li class="flex gap-3"><span class="w-6 h-6 shrink-0 rounded-full bg-pine-800 text-white grid place-items-center text-xs font-bold">2</span><span>Tap <b>Create API key</b>, then <b>Copy</b>.</span></li>
+            <li class="flex gap-3"><span class="w-6 h-6 shrink-0 rounded-full bg-pine-800 text-white grid place-items-center text-xs font-bold">3</span><span>Come back here and tap <b>Paste</b>.</span></li>
+          </ol>
+          <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener" class="btn btn-soft w-full mt-4"><i data-lucide="external-link" class="w-5 h-5"></i>Get my free key</a>
+          <div class="flex gap-2 mt-3">
+            <input id="s-key" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" class="field" placeholder="Paste key here (starts with AIza)">
+            <button type="button" id="s-paste" class="btn btn-soft shrink-0 !px-4">Paste</button>
+          </div>
+          <button type="button" id="s-savekey" class="btn w-full mt-3"><i data-lucide="key-round" class="w-5 h-5"></i>Connect key</button>
+        </div>
+        <button type="button" id="s-rmkey" class="hidden mt-3 text-[15px] text-[#7A8B7E] underline">Remove my key</button>
+      </div>
+
+      <form id="s-form" class="card rounded-3xl p-5 mt-5 space-y-4">
+        <span class="font-heading font-bold text-lg text-pine-950">My info</span>
+        <label class="block"><span class="text-[15px] font-semibold text-pine-900">Name</span><input id="s-name" class="field mt-2" maxlength="60" autocomplete="given-name"></label>
+        <label class="block"><span class="text-[15px] font-semibold text-pine-900">My goals</span><textarea id="s-goals" rows="2" class="field mt-2" maxlength="600" placeholder="e.g. Gym 4 times a week, read every night"></textarea></label>
+        <label class="block"><span class="text-[15px] font-semibold text-pine-900">My usual day</span><textarea id="s-schedule" rows="2" class="field mt-2" maxlength="600" placeholder="e.g. Wake 7, work 9–5, gym 6pm"></textarea></label>
+        <label class="block"><span class="text-[15px] font-semibold text-pine-900">Time zone</span><select id="s-tz" class="field mt-2"></select></label>
+        <button class="btn w-full"><i data-lucide="check" class="w-5 h-5"></i>Save</button>
       </form>
-      <div class="max-w-2xl mt-6 text-xs text-[#93A596] flex flex-wrap gap-4">
-        <a id="tg-link" href="#" target="_blank" rel="noopener" class="text-pine-700 underline">Open Telegram chat</a>
-        <button id="logout" class="underline">Sign out of this device</button>
+
+      <div class="flex flex-col gap-3 mt-6 mb-4 text-[15px]">
+        <a id="tg-link" href="#" class="btn btn-soft w-full"><i data-lucide="send" class="w-5 h-5"></i>Open my Telegram chat</a>
+        <a href="mailto:aharonohevshalom123@gmail.com?subject=Vovo%20help" class="text-center text-pine-700 underline">Need help? Email us</a>
+        <button id="logout" class="text-center text-[#93A596] underline">Sign out on this device</button>
       </div>
     </section>
   </main>
 
-  <nav class="md:hidden shrink-0 bg-white border-t border-[#E6EDE6] grid grid-cols-4 pb-[env(safe-area-inset-bottom)]" id="tabs-bottom"></nav>
+  <nav class="md:hidden shrink-0 bg-white border-t border-[#E6EDE6] grid grid-cols-4 safe-bottom" id="tabs-bottom"></nav>
 </div>
 
-<div id="toast" class="fixed left-1/2 -translate-x-1/2 bottom-24 md:bottom-8 z-50 hidden px-4 py-2.5 rounded-xl text-sm shadow-lg"></div>
+<div id="toast" class="fixed left-1/2 -translate-x-1/2 bottom-28 md:bottom-8 z-50 hidden px-5 py-3 rounded-2xl text-[15px] shadow-lg max-w-[90vw] text-center"></div>
 
 <script>
-const TABS = [['chat','message-circle','Chat'],['reminders','alarm-clock','Reminders'],['knowledge','brain','Knowledge'],['settings','settings-2','Setup']];
-const TZS = ['Asia/Jerusalem','Europe/London','Europe/Paris','Europe/Berlin','Europe/Moscow','Asia/Dubai','Asia/Kolkata','Asia/Singapore','Asia/Tokyo','Australia/Sydney','America/New_York','America/Chicago','America/Denver','America/Los_Angeles','America/Sao_Paulo','Africa/Johannesburg','UTC'];
-const SUGGEST = ["I'll work out at 4", "Remind me every day at 6 to wake up", "What should I focus on right now?", "I'm procrastinating"];
-const $ = (s) => document.querySelector(s);
-let token = null, state = null, sending = false;
+const TG = window.Telegram?.WebApp;
+const inTelegram = !!TG?.initData;
+const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+const standalone = window.navigator.standalone === true || matchMedia('(display-mode: standalone)').matches;
+const browserTz = (() => { try { return Intl.DateTimeFormat().resolvedOptions().timeZone; } catch { return null; } })();
 
+const TABS = [['chat','message-circle','Chat'],['reminders','alarm-clock','Reminders'],['knowledge','user-round','About me'],['settings','settings-2','Setup']];
+const TZS = ['Asia/Jerusalem','Europe/London','Europe/Paris','Europe/Berlin','Europe/Moscow','Asia/Dubai','Asia/Kolkata','Asia/Singapore','Asia/Tokyo','Australia/Sydney','America/New_York','America/Chicago','America/Denver','America/Los_Angeles','America/Sao_Paulo','Africa/Johannesburg','UTC'];
+const SUGGEST = ["I want to work out at 4", "Wake me up every day at 7", "Help me plan my day", "I'm feeling lazy today"];
+const IDEAS = ["My job is…", "My goal this year is…", "I usually wake up at…", "What motivates me is…", "I struggle with…"];
+const $ = (s) => document.querySelector(s);
+let token = null, state = null, sending = false, view = 'chat';
+
+// Sign-in: Telegram Mini App > private link (#t=...) > saved on this device.
+// The #t= link is kept in the address bar so "Add to Home Screen" on iPhone stays signed in.
 const hashT = new URLSearchParams(location.hash.slice(1)).get('t');
-if (hashT) { localStorage.setItem('vovo_token', hashT); history.replaceState(null, '', location.pathname); }
-token = localStorage.getItem('vovo_token');
+if (hashT) localStorage.setItem('vovo_token', hashT);
+token = hashT || localStorage.getItem('vovo_token');
+
+if (TG) {
+  try { TG.ready(); TG.expand(); TG.setHeaderColor?.('#FFFFFF'); TG.setBackgroundColor?.('#FBFCF9'); TG.disableVerticalSwipes?.(); } catch {}
+}
 
 function esc(s) { return String(s).replace(/[&<>"']/g, (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
-function md(s) { return esc(s).replace(/\*\*(.+?)\*\*|\*(.+?)\*/g, (m, a, b) => `<b>${a || b}</b>`).replace(/`([^`]+)`/g, '<code class="bg-pine-50 text-pine-800 px-1 rounded">$1</code>').replace(/\n/g, '<br>'); }
-function toast(msg, bad) { const t = $('#toast'); t.textContent = msg; t.className = `fixed left-1/2 -translate-x-1/2 bottom-24 md:bottom-8 z-50 px-4 py-2.5 rounded-xl text-sm shadow-lg ${bad ? 'bg-red-600 text-white' : 'bg-pine-900 text-white'}`; clearTimeout(t._h); t._h = setTimeout(() => t.classList.add('hidden'), 3000); }
+function md(s) { return esc(s).replace(/\*\*(.+?)\*\*|\*(.+?)\*/g, (m, a, b) => `<b>${a || b}</b>`).replace(/_(.+?)_/g, '<i>$1</i>').replace(/`([^`]+)`/g, '<code class="bg-pine-50 text-pine-800 px-1 rounded">$1</code>').replace(/\n/g, '<br>'); }
+function toast(msg, bad) { const t = $('#toast'); t.textContent = msg; t.className = `fixed left-1/2 -translate-x-1/2 bottom-28 md:bottom-8 z-50 px-5 py-3 rounded-2xl text-[15px] shadow-lg max-w-[90vw] text-center ${bad ? 'bg-red-600 text-white' : 'bg-pine-900 text-white'}`; clearTimeout(t._h); t._h = setTimeout(() => t.classList.add('hidden'), 3200); }
+function haptic(type = 'light') { try { TG?.HapticFeedback?.impactOccurred(type); } catch {} }
+function openExternal(url) { if (inTelegram) TG.openLink(url); else window.open(url, '_blank', 'noopener'); }
 
 async function api(action, data = {}) {
-  const r = await fetch('/api/app', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ token, action, ...data }) });
-  const j = await r.json().catch(() => ({ error: 'Network error' }));
+  const body = { token, initData: inTelegram ? TG.initData : undefined, browserTz, action, ...data };
+  const r = await fetch('/api/app', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+  const j = await r.json().catch(() => ({ error: 'No connection — check your internet and try again.' }));
   if (r.status === 401) { localStorage.removeItem('vovo_token'); showConnect(j.error); throw new Error(j.error); }
-  if (!r.ok) throw new Error(j.error || 'Something went wrong');
+  if (!r.ok) throw new Error(j.error || 'Something went wrong — try again.');
+  if (j.token && j.token !== token) { token = j.token; localStorage.setItem('vovo_token', token); }
   return j;
 }
 
 function showConnect(err) {
-  $('#app').classList.add('hidden'); $('#connect').classList.remove('hidden');
-  if (err) { $('#connect-err').textContent = err; $('#connect-err').classList.remove('hidden'); }
+  $('#loading').classList.add('hidden'); $('#app').classList.add('hidden'); $('#connect').classList.remove('hidden');
+  if (err && token) { $('#connect-err').textContent = err; $('#connect-err').classList.remove('hidden'); }
   lucide.createIcons();
 }
 
+function setView(v) { view = v; renderTabs(); haptic(); }
 function renderTabs() {
-  const view = location.hash.replace('#', '') || 'chat';
-  const top = TABS.map(([id, icon, label]) => `<a href="#${id}" class="tab ${view === id ? 'active' : ''} px-3.5 py-2 rounded-lg hover:bg-pine-50 flex items-center gap-2"><i data-lucide="${icon}" class="w-4 h-4"></i>${label}</a>`).join('');
-  const bottom = TABS.map(([id, icon, label]) => `<a href="#${id}" class="tab ${view === id ? 'active' : ''} flex flex-col items-center gap-1 py-2.5 text-[11px] font-medium"><span class="relative"><i data-lucide="${icon}" class="w-5 h-5"></i><span class="dot absolute -top-0.5 -right-1.5 w-1.5 h-1.5 rounded-full"></span></span>${label}</a>`).join('');
+  const top = TABS.map(([id, icon, label]) => `<button data-tab="${id}" class="tab ${view === id ? 'active' : ''} px-3.5 py-2 rounded-lg hover:bg-pine-50 flex items-center gap-2"><i data-lucide="${icon}" class="w-4 h-4"></i>${label}</button>`).join('');
+  const bottom = TABS.map(([id, icon, label]) => `<button data-tab="${id}" class="tab ${view === id ? 'active' : ''} flex flex-col items-center gap-1 pt-2.5 pb-1.5 text-[12px]"><span class="relative"><i data-lucide="${icon}" class="w-6 h-6"></i><span class="dot absolute -top-0.5 -right-1.5 w-2 h-2 rounded-full"></span></span>${label}</button>`).join('');
   $('#tabs-top').innerHTML = top; $('#tabs-bottom').innerHTML = bottom;
-  document.querySelectorAll('.view').forEach((v) => v.classList.toggle('hidden', v.dataset.view !== view));
+  document.querySelectorAll('.view').forEach((el) => el.classList.toggle('hidden', el.dataset.view !== view));
   lucide.createIcons();
   if (view === 'chat') scrollChat();
 }
+document.addEventListener('click', (e) => { const b = e.target.closest('[data-tab]'); if (b) setView(b.dataset.tab); });
 
 function bubble(m) {
   const me = m.role === 'user';
-  const src = m.src === 'telegram' ? '<span class="text-[10px] opacity-60 ml-1">via Telegram</span>' : '';
-  return `<div class="flex ${me ? 'justify-end' : 'justify-start'} fade"><div class="${me ? 'bubble-me' : 'bubble-vovo'} max-w-[85%] sm:max-w-[70%] px-4 py-2.5 text-[15px] leading-relaxed">${md(m.text)}${src}</div></div>`;
+  const src = m.src === 'telegram' ? `<div class="text-[11px] mt-1 ${me ? 'text-white/60' : 'text-[#93A596]'}">via Telegram</div>` : '';
+  return `<div class="flex ${me ? 'justify-end' : 'justify-start'} fade"><div class="${me ? 'bubble-me' : 'bubble-vovo'} max-w-[86%] px-4 py-3 text-[16px] leading-relaxed">${md(m.text)}${src}</div></div>`;
 }
 function renderChat(pending) {
   const h = state.history;
-  const intro = !h.length ? bubble({ role: 'vovo', text: `🔥 *${esc(state.profile.name || 'Champ')}, I'm Vovo.* Tell me what you're executing today and when — I'll text you on Telegram at that exact time.` }) : '';
-  $('#msgs').innerHTML = intro + h.map(bubble).join('') + (pending ? bubble({ role: 'user', text: pending }) + '<div class="flex fade"><div class="bubble-vovo px-4 py-3.5 typing flex gap-1"><span></span><span></span><span></span></div></div>' : '');
-  $('#suggest').innerHTML = h.length > 4 ? '' : SUGGEST.map((s) => `<button type="button" class="shrink-0 px-3 py-1.5 rounded-full bg-white border border-[#E6EDE6] text-[#4B5E50] hover:border-pine-300">${esc(s)}</button>`).join('');
+  const intro = !h.length ? bubble({ role: 'vovo', text: `👋 *Hey ${state.profile.name || 'there'}, I'm Vovo.*\n\nTell me what you want to do today and when — like *"gym at 5"* — and I'll text you on Telegram at that exact time.\n\nTap an idea below to try it 👇` }) : '';
+  $('#msgs').innerHTML = intro + h.map(bubble).join('') + (pending ? bubble({ role: 'user', text: pending }) + '<div class="flex fade"><div class="bubble-vovo px-4 py-4 typing flex gap-1"><span></span><span></span><span></span></div></div>' : '');
+  $('#suggest').innerHTML = h.length > 6 ? '' : SUGGEST.map((s) => `<button type="button" class="chip">${esc(s)}</button>`).join('');
   scrollChat();
 }
 function scrollChat() { const m = $('#msgs'); requestAnimationFrame(() => m.scrollTop = m.scrollHeight); }
 
+function pad(n) { return String(n).padStart(2, '0'); }
+function toLocalInput(d) { return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`; }
+function quickTimes() {
+  const now = new Date(), out = [];
+  const at = (days, h, m = 0) => { const d = new Date(now); d.setDate(d.getDate() + days); d.setHours(h, m, 0, 0); return d; };
+  out.push(['In 30 min', new Date(now.getTime() + 30 * 60000)]);
+  out.push(['In 1 hour', new Date(now.getTime() + 60 * 60000)]);
+  if (now.getHours() < 18) out.push(['This evening (6pm)', at(0, 18)]);
+  if (now.getHours() < 21) out.push(['Tonight (9pm)', at(0, 21)]);
+  out.push(['Tomorrow 7am', at(1, 7)]);
+  out.push(['Tomorrow 9am', at(1, 9)]);
+  return out;
+}
+function renderQuick() {
+  $('#rem-quick').innerHTML = quickTimes().map(([label, d]) => `<button type="button" class="chip" data-at="${toLocalInput(d)}">${label}</button>`).join('');
+}
+
 function renderReminders() {
   const list = state.reminders;
   $('#rem-list').innerHTML = list.length ? list.map((r) => `
-    <div class="card rounded-2xl px-5 py-4 flex items-center gap-4 fade">
-      <div class="w-10 h-10 rounded-xl ${r.repeat === 'daily' ? 'bg-candle-100 text-candle-600' : 'bg-pine-50 text-pine-700'} grid place-items-center shrink-0"><i data-lucide="${r.repeat === 'daily' ? 'repeat' : 'alarm-clock'}" class="w-5 h-5"></i></div>
-      <div class="flex-1 min-w-0"><div class="font-medium text-pine-950 truncate">${esc(r.text)}</div><div class="text-xs text-[#7A8B7E] mt-0.5">${esc(r.local)}${r.repeat === 'daily' ? ' · every day' : ''}</div></div>
-      <button data-cancel="${r.id}" class="text-[#93A596] hover:text-red-600 p-2" aria-label="Cancel"><i data-lucide="x" class="w-4 h-4"></i></button>
-    </div>`).join('') : `<div class="text-center text-sm text-[#93A596] py-12">No reminders yet. Tell Vovo "I'll study at 8" in chat.</div>`;
+    <div class="card rounded-2xl px-4 py-3.5 flex items-center gap-3.5 fade">
+      <div class="w-11 h-11 rounded-xl ${r.repeat === 'daily' ? 'bg-candle-100 text-candle-600' : 'bg-pine-50 text-pine-700'} grid place-items-center shrink-0"><i data-lucide="${r.repeat === 'daily' ? 'repeat' : 'alarm-clock'}" class="w-5 h-5"></i></div>
+      <div class="flex-1 min-w-0"><div class="font-medium text-[16px] text-pine-950">${esc(r.text)}</div><div class="text-[14px] text-[#7A8B7E] mt-0.5">${esc(r.local)}${r.repeat === 'daily' ? ' · every day' : ''}</div></div>
+      <button data-cancel="${r.id}" class="text-[#93A596] active:text-red-600 w-11 h-11 grid place-items-center -mr-1" aria-label="Delete reminder"><i data-lucide="trash-2" class="w-5 h-5"></i></button>
+    </div>`).join('') : `<div class="text-center text-[15px] text-[#93A596] py-10">No reminders yet.<br>Try telling Vovo <i>"study at 8 tonight"</i>.</div>`;
 }
 function renderKnowledge() {
   const k = state.knowledge, L = state.limits;
   $('#k-count').textContent = `${k.length} / ${L.knowledgeItems}`;
+  $('#k-ideas').innerHTML = IDEAS.map((s) => `<button type="button" class="chip">${esc(s)}</button>`).join('');
   $('#k-list').innerHTML = k.length ? k.map((n) => `
-    <div class="card rounded-2xl p-4 flex gap-3 items-start fade">
-      <i data-lucide="sparkle" class="w-4 h-4 text-candle-500 mt-0.5 shrink-0"></i>
-      <div class="flex-1 text-sm text-[#2B3A2F] leading-relaxed">${esc(n.text)}</div>
-      <button data-kdel="${n.id}" class="text-[#93A596] hover:text-red-600" aria-label="Delete"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
-    </div>`).join('') : `<div class="sm:col-span-2 text-center text-sm text-[#93A596] py-12">Nothing yet. Teach Vovo who you are — routine, diet, job, what motivates you.</div>`;
+    <div class="card rounded-2xl px-4 py-3.5 flex gap-3 items-center fade">
+      <i data-lucide="sparkle" class="w-4 h-4 text-candle-500 shrink-0"></i>
+      <div class="flex-1 text-[16px] text-[#2B3A2F] leading-relaxed">${esc(n.text)}</div>
+      <button data-kdel="${n.id}" class="text-[#93A596] active:text-red-600 w-11 h-11 grid place-items-center -mr-1" aria-label="Delete"><i data-lucide="trash-2" class="w-5 h-5"></i></button>
+    </div>`).join('') : `<div class="text-center text-[15px] text-[#93A596] py-10">Nothing yet. Tap an idea above to start.</div>`;
+}
+function renderInstall() {
+  const box = $('#install');
+  const link = `${location.origin}/app.html#t=${token}`;
+  if (inTelegram) {
+    box.innerHTML = `<div class="font-heading font-bold text-lg text-pine-950">Put Vovo on your home screen</div>
+      <p class="text-[15px] text-[#5A6B5E] mt-1.5 leading-relaxed">Open Vovo in Safari, then tap the Share button <i data-lucide="share" class="inline w-4 h-4 -mt-1"></i> and choose <b>Add to Home Screen</b>.</p>
+      <button type="button" id="open-safari" class="btn btn-soft w-full mt-4"><i data-lucide="compass" class="w-5 h-5"></i>Open in Safari</button>`;
+    box.classList.remove('hidden');
+    $('#open-safari').onclick = () => openExternal(link);
+  } else if (isIOS && !standalone) {
+    box.innerHTML = `<div class="font-heading font-bold text-lg text-pine-950">Add Vovo to your home screen</div>
+      <ol class="mt-3 space-y-3 text-[15px] text-[#2B3A2F]">
+        <li class="flex gap-3"><span class="w-6 h-6 shrink-0 rounded-full bg-candle-500 text-white grid place-items-center text-xs font-bold">1</span><span>Tap the Share button <i data-lucide="share" class="inline w-4 h-4 -mt-1"></i> at the bottom of Safari.</span></li>
+        <li class="flex gap-3"><span class="w-6 h-6 shrink-0 rounded-full bg-candle-500 text-white grid place-items-center text-xs font-bold">2</span><span>Scroll down and tap <b>Add to Home Screen</b>.</span></li>
+        <li class="flex gap-3"><span class="w-6 h-6 shrink-0 rounded-full bg-candle-500 text-white grid place-items-center text-xs font-bold">3</span><span>Tap <b>Add</b>. Vovo now opens like a normal app.</span></li>
+      </ol>`;
+    box.classList.remove('hidden');
+  } else box.classList.add('hidden');
 }
 function renderSettings() {
   const p = state.profile;
   $('#s-name').value = p.name || ''; $('#s-goals').value = p.goals; $('#s-schedule').value = p.schedule;
   const tzs = TZS.includes(p.timezone) ? TZS : [p.timezone, ...TZS];
-  $('#s-tz').innerHTML = tzs.map((z) => `<option ${z === p.timezone ? 'selected' : ''}>${z}</option>`).join('');
-  $('#s-keystate').textContent = p.hasOwnKey ? 'Your key ✓' : "Using Vovo's shared key";
-  $('#s-keystate').className = `text-xs px-2.5 py-1 rounded-full ${p.hasOwnKey ? 'bg-pine-50 text-pine-700 border border-pine-200' : 'bg-candle-100 text-candle-600 border border-candle-300'}`;
+  $('#s-tz').innerHTML = tzs.map((z) => `<option value="${z}" ${z === p.timezone ? 'selected' : ''}>${z.replace(/_/g, ' ').replace('/', ' — ')}</option>`).join('');
+  $('#s-keystate').textContent = p.hasOwnKey ? 'Connected ✓' : 'Not connected';
+  $('#s-keystate').className = `text-xs font-semibold px-2.5 py-1 rounded-full ${p.hasOwnKey ? 'bg-pine-50 text-pine-700 border border-pine-200' : 'bg-candle-100 text-candle-600 border border-candle-300'}`;
+  $('#key-steps').classList.toggle('hidden', p.hasOwnKey);
   $('#s-rmkey').classList.toggle('hidden', !p.hasOwnKey);
-  $('#hello').textContent = `${p.name || 'Champ'} · synced with Telegram`;
+  $('#hello').textContent = p.name || '';
   $('#tg-link').href = `https://t.me/${state.bot}`;
+  renderInstall();
 }
-function renderAll(pending) { renderChat(pending); renderReminders(); renderKnowledge(); renderSettings(); lucide.createIcons(); }
+function renderAll(pending) { renderChat(pending); renderReminders(); renderKnowledge(); renderSettings(); renderQuick(); lucide.createIcons(); }
 function apply(j) { state = j; renderAll(); }
 
 async function sendChat(text) {
   if (sending || !text.trim()) return;
-  sending = true; $('#chat-input').value = ''; autosize();
+  sending = true; $('#chat-input').value = ''; autosize(); haptic();
   renderChat(text); lucide.createIcons();
-  try { const j = await api('chat', { text }); apply(j); if (j.learned?.length) toast(`🧠 Vovo learned ${j.learned.length} new thing${j.learned.length > 1 ? 's' : ''} about you`); }
-  catch (e) { toast(e.message, true); renderChat(); $('#chat-input').value = text; }
+  try {
+    const j = await api('chat', { text }); apply(j);
+    if (j.learned?.length) toast(`✨ Vovo learned something new about you`);
+  } catch (e) { toast(e.message, true); renderChat(); $('#chat-input').value = text; }
   finally { sending = false; }
 }
-function autosize() { const t = $('#chat-input'); t.style.height = 'auto'; t.style.height = Math.min(t.scrollHeight, 160) + 'px'; }
+function autosize() { const t = $('#chat-input'); t.style.height = 'auto'; t.style.height = Math.min(t.scrollHeight, 144) + 'px'; }
 
-$('#chat-form').addEventListener('submit', (e) => { e.preventDefault(); sendChat($('#chat-input').value); });
-$('#chat-input').addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendChat(e.target.value); } });
+$('#chat-form').addEventListener('submit', (e) => { e.preventDefault(); sendChat($('#chat-input').value); $('#chat-input').blur(); });
+$('#chat-input').addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey && !isIOS) { e.preventDefault(); sendChat(e.target.value); } });
 $('#chat-input').addEventListener('input', autosize);
-$('#suggest').addEventListener('click', (e) => { if (e.target.matches('button')) sendChat(e.target.textContent); });
+$('#chat-input').addEventListener('focus', () => setTimeout(scrollChat, 300));
+$('#suggest').addEventListener('click', (e) => { const b = e.target.closest('button'); if (b) sendChat(b.textContent); });
+$('#rem-quick').addEventListener('click', (e) => {
+  const b = e.target.closest('[data-at]'); if (!b) return;
+  $('#rem-at').value = b.dataset.at; document.querySelectorAll('#rem-quick .chip').forEach((c) => c.classList.toggle('on', c === b)); haptic();
+});
+$('#rem-at').addEventListener('input', () => document.querySelectorAll('#rem-quick .chip').forEach((c) => c.classList.remove('on')));
 $('#rem-form').addEventListener('submit', async (e) => {
   e.preventDefault();
-  try { apply(await api('reminder_add', { text: $('#rem-text').value, at: new Date($('#rem-at').value).toISOString(), repeat: $('#rem-repeat').value })); e.target.reset(); toast('⏰ Reminder set — check Telegram'); }
-  catch (err) { toast(err.message, true); }
+  try {
+    apply(await api('reminder_add', { text: $('#rem-text').value, at: new Date($('#rem-at').value).toISOString(), repeat: $('#rem-daily').checked ? 'daily' : 'none' }));
+    e.target.reset(); toast('⏰ Done! Vovo will text you on Telegram.'); haptic('medium');
+  } catch (err) { toast(err.message, true); }
 });
-$('#rem-list').addEventListener('click', async (e) => { const b = e.target.closest('[data-cancel]'); if (b) try { apply(await api('reminder_cancel', { id: b.dataset.cancel })); toast('Reminder cancelled'); } catch (err) { toast(err.message, true); } });
-$('#k-form').addEventListener('submit', async (e) => { e.preventDefault(); try { apply(await api('knowledge_add', { text: $('#k-text').value })); e.target.reset(); toast('🧠 Saved'); } catch (err) { toast(err.message, true); } });
+$('#rem-list').addEventListener('click', async (e) => { const b = e.target.closest('[data-cancel]'); if (b && confirm('Delete this reminder?')) try { apply(await api('reminder_cancel', { id: b.dataset.cancel })); toast('Reminder deleted'); } catch (err) { toast(err.message, true); } });
+$('#k-ideas').addEventListener('click', (e) => { const b = e.target.closest('button'); if (!b) return; const t = $('#k-text'); t.value = b.textContent.replace('…', ' '); t.focus(); t.setSelectionRange(t.value.length, t.value.length); });
+$('#k-form').addEventListener('submit', async (e) => { e.preventDefault(); try { apply(await api('knowledge_add', { text: $('#k-text').value })); e.target.reset(); toast('✨ Saved — Vovo will remember that'); haptic('medium'); } catch (err) { toast(err.message, true); } });
 $('#k-list').addEventListener('click', async (e) => { const b = e.target.closest('[data-kdel]'); if (b) try { apply(await api('knowledge_delete', { id: b.dataset.kdel })); } catch (err) { toast(err.message, true); } });
 $('#s-form').addEventListener('submit', async (e) => {
   e.preventDefault();
-  try { apply(await api('settings', { name: $('#s-name').value, goals: $('#s-goals').value, schedule: $('#s-schedule').value, timezone: $('#s-tz').value, geminiKey: $('#s-key').value })); $('#s-key').value = ''; toast('Saved'); }
+  try { apply(await api('settings', { name: $('#s-name').value, goals: $('#s-goals').value, schedule: $('#s-schedule').value, timezone: $('#s-tz').value })); toast('Saved ✓'); haptic('medium'); }
   catch (err) { toast(err.message, true); }
 });
-$('#s-rmkey').addEventListener('click', async () => { try { apply(await api('settings', { removeKey: true })); toast('Key removed'); } catch (err) { toast(err.message, true); } });
-$('#logout').addEventListener('click', () => { localStorage.removeItem('vovo_token'); location.href = '/'; });
-window.addEventListener('hashchange', renderTabs);
+$('#s-paste').addEventListener('click', async () => {
+  try { const t = (await navigator.clipboard.readText()).trim(); if (t) $('#s-key').value = t; else toast('Nothing copied yet — copy your key first', true); }
+  catch { $('#s-key').focus(); toast('Press and hold the box, then tap Paste'); }
+});
+$('#s-savekey').addEventListener('click', async () => {
+  const key = $('#s-key').value.trim();
+  if (!key) return toast('Paste your key first', true);
+  const b = $('#s-savekey'); b.disabled = true; b.textContent = 'Checking…';
+  try { apply(await api('settings', { geminiKey: key })); $('#s-key').value = ''; toast('✅ Key connected — you\'re all set!'); haptic('medium'); }
+  catch (err) { toast(err.message, true); }
+  finally { b.disabled = false; b.innerHTML = '<i data-lucide="key-round" class="w-5 h-5"></i>Connect key'; lucide.createIcons(); }
+});
+$('#s-rmkey').addEventListener('click', async () => { if (confirm('Remove your AI key?')) try { apply(await api('settings', { removeKey: true })); toast('Key removed'); } catch (err) { toast(err.message, true); } });
+$('#tg-link').addEventListener('click', (e) => { if (inTelegram) { e.preventDefault(); TG.close(); } });
+$('#logout').addEventListener('click', () => { if (!confirm('Sign out on this device?')) return; localStorage.removeItem('vovo_token'); location.href = '/app.html'; });
 document.addEventListener('visibilitychange', async () => { if (!document.hidden && state && !sending) try { apply(await api('load')); } catch {} });
 
 (async () => {
-  if (!token) return showConnect();
-  try { apply(await api('load')); $('#app').classList.remove('hidden'); renderTabs(); }
-  catch (e) { if (!$('#connect').classList.contains('hidden')) return; showConnect(e.message); }
+  if (!token && !inTelegram) return showConnect();
+  try {
+    apply(await api('load'));
+    $('#loading').classList.add('hidden'); $('#app').classList.remove('hidden'); $('#app').classList.add('flex'); renderTabs();
+  } catch (e) { if ($('#connect').classList.contains('hidden')) showConnect(e.message); }
 })();
 </script>
 </body>

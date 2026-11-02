@@ -2,7 +2,8 @@
 <html lang="en" class="scroll-smooth">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="apple-touch-icon" href="/brand/vovo-mark.png">
 <title>Vovo Members — Setup Guide</title>
 <meta name="robots" content="noindex">
 <link rel="icon" type="image/png" href="/brand/favicon.png">
@@ -30,12 +31,21 @@ tailwind.config = { theme: { extend: {
   .mark::after { content:""; position:absolute; top:-8px; right:-8px; width:18px; height:18px; background:#D9A94A; border-radius:50%; box-shadow:0 0 10px rgba(217,169,74,.9); }
   .cta { transition:transform .2s ease,box-shadow .2s ease; box-shadow:0 4px 14px -2px rgba(20,83,45,.35); }
   .cta:hover { transform:scale(1.02); box-shadow:0 8px 24px -4px rgba(20,83,45,.45); }
+  body { -webkit-tap-highlight-color:transparent; -webkit-text-size-adjust:100%; }
+  .num { width:40px; height:40px; border-radius:14px; background:#14532D; color:#fff; display:grid; place-items:center; font-family:"Plus Jakarta Sans",sans-serif; font-weight:800; font-size:18px; flex-shrink:0; }
+  .sub { width:28px; height:28px; border-radius:999px; background:#FBF3DF; border:1px solid #EDD49A; color:#B98A33; display:grid; place-items:center; font-weight:700; font-size:14px; flex-shrink:0; }
+  .big-btn { display:flex; align-items:center; justify-content:center; gap:10px; width:100%; min-height:56px; padding:0 22px; border-radius:16px; background:#14532D; color:#fff; font-weight:600; font-size:17px; box-shadow:0 4px 14px -2px rgba(20,83,45,.35); transition:transform .15s; touch-action:manipulation; }
+  .big-btn:active { transform:scale(.97); }
+  .big-btn.soft { background:#F0F7F1; color:#14532D; border:1px solid #BCDCC6; box-shadow:none; }
+  .phone { max-width:320px; margin-left:auto; margin-right:auto; border:1px solid #E2EAE2; border-radius:26px; overflow:hidden; background:#fff; box-shadow:0 16px 40px -12px rgba(16,61,34,.18); }
+  .phone-bar { display:flex; align-items:center; gap:10px; padding:12px 14px; background:#F7FAF6; border-bottom:1px solid #E6EDE6; }
+  .tg-btn { background:rgba(255,255,255,.85); border-radius:10px; text-align:center; padding:8px; font-weight:500; color:#2AABEE; }
 </style>
 </head>
 <body class="font-body antialiased">
 
 <header class="bg-white/85 backdrop-blur-md border-b border-[#E6EDE6] sticky top-0 z-40">
-  <nav class="max-w-4xl mx-auto flex items-center justify-between px-6 h-16">
+  <nav class="max-w-2xl mx-auto flex items-center justify-between px-5 h-16">
     <a href="/" class="flex items-center gap-2.5 font-heading font-extrabold text-xl tracking-tight text-pine-800">
       <img src="/brand/vovo-mark.png" alt="Vovo" class="w-9 h-9 rounded-xl"> Vovo
     </a>
@@ -46,131 +56,124 @@ tailwind.config = { theme: { extend: {
   </nav>
 </header>
 
-<main class="max-w-4xl mx-auto px-6 py-14">
+<main class="max-w-2xl mx-auto px-5 py-10 sm:py-14">
 
-  <div class="text-center mb-14">
-    <div class="inline-flex items-center gap-2 bg-pine-50 border border-pine-200 rounded-full px-4 py-1.5 text-xs font-medium text-pine-700 mb-6">
-      <i data-lucide="badge-check" class="w-3.5 h-3.5"></i> Member access unlocked
+  <div class="text-center mb-10">
+    <div class="inline-flex items-center gap-2 bg-pine-50 border border-pine-200 rounded-full px-4 py-1.5 text-[13px] font-medium text-pine-700 mb-5">
+      <i data-lucide="badge-check" class="w-4 h-4"></i> You're in
     </div>
-    <h1 class="font-heading font-extrabold text-[clamp(2rem,5vw,3.25rem)] text-pine-950 leading-tight">Let's get Vovo running.</h1>
-    <p class="mt-4 text-[#5A6B5E] max-w-xl mx-auto leading-relaxed">Three quick steps and your coach is live. First you'll grab a <b class="text-pine-800">free Google Gemini API key</b> (that's what powers Vovo's brain — keeps it free), then connect Telegram.</p>
+    <h1 class="font-heading font-extrabold text-[clamp(2rem,8vw,3rem)] text-pine-950 leading-tight">Let's set up your coach.</h1>
+    <p class="mt-4 text-[17px] text-[#5A6B5E] leading-relaxed">3 easy steps · about 3 minutes · works on any iPhone.<br>No tech skills needed — just tap the green buttons.</p>
   </div>
 
   <!-- STEP 1 -->
-  <section id="key" class="mb-14 scroll-mt-24">
-    <div class="flex items-center gap-3 mb-6">
-      <span class="w-9 h-9 rounded-xl bg-pine-800 grid place-items-center font-heading font-extrabold text-white">1</span>
-      <h2 class="font-heading font-bold text-2xl text-pine-950">Get your free Gemini API key</h2>
+  <section class="step card rounded-3xl p-6 sm:p-8 mb-5">
+    <div class="flex items-center gap-3 mb-4">
+      <span class="num">1</span>
+      <h2 class="font-heading font-bold text-[22px] text-pine-950">Get Telegram <span class="text-[#93A596] font-medium text-base">(free)</span></h2>
     </div>
-    <p class="text-[#5A6B5E] text-sm mb-8 leading-relaxed">Google gives every account a free Gemini key — no card, no trial, no catch. It takes about 60 seconds:</p>
-
-    <div class="space-y-8">
-      <div>
-        <p class="text-sm text-[#4B5E50] mb-3"><b class="text-pine-900">a)</b> Open <a href="https://aistudio.google.com" target="_blank" rel="noopener" class="text-pine-700 underline underline-offset-2">aistudio.google.com</a> and sign in with your Google account.</p>
-        <div class="browser">
-          <div class="browser-bar"><span class="dot bg-red-400/70"></span><span class="dot bg-amber-400/70"></span><span class="dot bg-emerald-400/70"></span><span class="url-pill">aistudio.google.com</span></div>
-          <div class="p-8 grid place-items-center gap-4" style="background:linear-gradient(135deg,#F6F9F4,#EDF3EA)">
-            <div class="font-heading font-bold text-2xl text-pine-900">Google AI Studio</div>
-            <div class="mark px-6 py-2.5 rounded-lg bg-pine-800 text-white text-sm font-medium flex items-center gap-2">Sign in with Google</div>
-            <div class="text-[11px] text-[#93A596]">Click the sign-in button</div>
-          </div>
-        </div>
-      </div>
-
-      <div>
-        <p class="text-sm text-[#4B5E50] mb-3"><b class="text-pine-900">b)</b> Once inside, click <b class="text-pine-900">“Get API key”</b> in the left sidebar.</p>
-        <div class="browser">
-          <div class="browser-bar"><span class="dot bg-red-400/70"></span><span class="dot bg-amber-400/70"></span><span class="dot bg-emerald-400/70"></span><span class="url-pill">aistudio.google.com/apikey</span></div>
-          <div class="flex" style="background:#FAFCF8">
-            <div class="w-44 shrink-0 border-r border-[#E6EDE6] p-4 space-y-3 text-[13px] text-[#5A6B5E]">
-              <div class="px-3 py-2">Playground</div>
-              <div class="mark px-3 py-2 rounded-lg bg-pine-50 text-pine-800 font-semibold flex items-center gap-2"><i data-lucide="key-round" class="w-3.5 h-3.5"></i>Get API key</div>
-              <div class="px-3 py-2">Usage</div>
-              <div class="px-3 py-2">Settings</div>
-            </div>
-            <div class="flex-1 p-8">
-              <div class="font-heading font-bold text-lg text-pine-900">Gemini API keys</div>
-              <div class="mt-4 mark inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-pine-700 text-white text-sm font-medium"><i data-lucide="plus" class="w-4 h-4"></i>Create API key</div>
-              <div class="mt-3 text-[11px] text-[#93A596]">Then click “Create API key”</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div>
-        <p class="text-sm text-[#4B5E50] mb-3"><b class="text-pine-900">c)</b> Copy the key that appears — it starts with <code class="text-pine-700 bg-pine-50 px-1.5 py-0.5 rounded">AIza...</code></p>
-        <div class="browser">
-          <div class="browser-bar"><span class="dot bg-red-400/70"></span><span class="dot bg-amber-400/70"></span><span class="dot bg-emerald-400/70"></span><span class="url-pill">aistudio.google.com/apikey</span></div>
-          <div class="p-8" style="background:#FAFCF8">
-            <div class="card rounded-xl p-4 flex items-center justify-between max-w-md">
-              <code class="text-sm text-[#4B5E50]">AIzaSy••••••••••••••••••</code>
-              <span class="mark text-xs px-3 py-1.5 rounded-lg bg-candle-100 border border-candle-300 text-candle-600 flex items-center gap-1.5"><i data-lucide="copy" class="w-3.5 h-3.5"></i>Copy</span>
-            </div>
-            <div class="mt-3 text-[11px] text-[#93A596]">Keep this key private — it's yours.</div>
-          </div>
-        </div>
-      </div>
-    </div>
+    <p class="text-[16px] text-[#5A6B5E] leading-relaxed">Vovo texts you through Telegram, a free messaging app like WhatsApp. Already have it? Skip to step 2.</p>
+    <a href="https://apps.apple.com/app/telegram-messenger/id686449807" target="_blank" rel="noopener" class="big-btn soft mt-5"><i data-lucide="download" class="w-5 h-5"></i> Get Telegram on the App Store</a>
+    <p class="text-[14px] text-[#93A596] mt-3 text-center">Open it once and sign up with your phone number.</p>
   </section>
 
   <!-- STEP 2 -->
-  <section class="mb-14">
-    <div class="flex items-center gap-3 mb-6">
-      <span class="w-9 h-9 rounded-xl bg-pine-800 grid place-items-center font-heading font-extrabold text-white">2</span>
-      <h2 class="font-heading font-bold text-2xl text-pine-950">Connect Vovo on Telegram</h2>
+  <section class="step card rounded-3xl p-6 sm:p-8 mb-5">
+    <div class="flex items-center gap-3 mb-4">
+      <span class="num">2</span>
+      <h2 class="font-heading font-bold text-[22px] text-pine-950">Say hi to Vovo</h2>
     </div>
-    <div class="card rounded-2xl p-8 space-y-5 text-sm text-[#5A6B5E] leading-relaxed">
-      <p><b class="text-pine-900">a)</b> Open the bot: <a href="https://t.me/vovo_aharonenterprise_bot" target="_blank" rel="noopener" class="text-pine-700 underline underline-offset-2">t.me/vovo_aharonenterprise_bot</a></p>
-      <p><b class="text-pine-900">b)</b> Send <code class="text-pine-700 bg-pine-50 px-1.5 py-0.5 rounded">/start</code>, then connect your key: <code class="text-pine-700 bg-pine-50 px-1.5 py-0.5 rounded">/key AIza...</code> (Vovo deletes that message instantly and stores the key encrypted).</p>
-      <p><b class="text-pine-900">c)</b> Set yourself up:</p>
-      <div class="bg-[#F4F8F3] border border-[#E6EDE6] rounded-xl p-5 font-mono text-[13px] space-y-2 text-pine-800">
-        <div>/goals Ship the client site · Gym 4x this week</div>
-        <div>/schedule 07:00 Workout | 09:00 Deep work | 22:00 Sleep</div>
-        <div>/status</div>
-      </div>
-      <p class="text-[#7A8B7E]">That's it. Vovo takes it from there — daily check-ins, memory, and zero tolerance for excuses.</p>
-    </div>
-  </section>
+    <p class="text-[16px] text-[#5A6B5E] leading-relaxed">Tap the button, then tap <b class="text-pine-900">Start</b> at the bottom of the chat.</p>
+    <a href="https://t.me/vovo_aharonenterprise_bot?start=hi" class="big-btn mt-5"><i data-lucide="send" class="w-5 h-5"></i> Open Vovo in Telegram</a>
 
+    <div class="phone mt-7">
+      <div class="phone-bar"><img src="/brand/vovo-mark.png" class="w-7 h-7 rounded-full" alt=""><div><div class="text-[13px] font-semibold text-pine-950 leading-none">Vovo</div><div class="text-[11px] text-[#93A596]">bot</div></div></div>
+      <div class="p-4 space-y-3 text-[13px]" style="background:#EEF3EC">
+        <div class="bg-white rounded-2xl rounded-bl-md p-3 max-w-[88%] leading-snug text-[#2B3A2F]">👋 <b>Hey, I'm Vovo — your personal coach.</b><br>No commands needed. Just text me like a friend…</div>
+        <div class="max-w-[88%] space-y-1.5">
+          <div class="mark tg-btn">📱 Open my Vovo app</div>
+          <div class="tg-btn">🔑 Connect my free AI key (1 min)</div>
+          <div class="tg-btn">❓ How does Vovo work?</div>
+        </div>
+      </div>
+      <div class="p-3 bg-white border-t border-[#E6EDE6]"><div class="mark rounded-xl bg-[#2AABEE] text-white text-center font-semibold py-2.5 text-[14px]">START</div></div>
+    </div>
+    <p class="text-[14px] text-[#93A596] mt-3 text-center">The glowing buttons are the ones to tap.</p>
+  </section>
 
   <!-- STEP 3 -->
-  <section class="mb-14">
-    <div class="flex items-center gap-3 mb-6">
-      <span class="w-9 h-9 rounded-xl bg-candle-500 grid place-items-center font-heading font-extrabold text-white">3</span>
-      <h2 class="font-heading font-bold text-2xl text-pine-950">Use your Vovo web app</h2>
+  <section id="key" class="step card rounded-3xl p-6 sm:p-8 mb-5 scroll-mt-24">
+    <div class="flex items-center gap-3 mb-4">
+      <span class="num">3</span>
+      <h2 class="font-heading font-bold text-[22px] text-pine-950">Connect your free AI key</h2>
     </div>
-    <p class="text-[#5A6B5E] text-sm mb-6 leading-relaxed">Send <code class="text-pine-700 bg-pine-50 px-1.5 py-0.5 rounded">/web</code> to the bot — it replies with a private button that opens your web app. Same coach, same memory as Telegram.</p>
-    <div class="grid sm:grid-cols-3 gap-4">
-      <div class="card rounded-2xl p-6">
-        <i data-lucide="alarm-clock" class="w-6 h-6 text-pine-600 mb-4"></i>
-        <div class="font-heading font-bold text-pine-950 mb-2">Timed reminders</div>
-        <p class="text-sm text-[#5A6B5E] leading-relaxed">Just say it: <i>"I'll work out at 4"</i> or <i>"wake me every day at 6"</i>. At that exact time Vovo texts you on Telegram with ✅ / ⏳ 10 min / ❌ buttons.</p>
-      </div>
-      <div class="card rounded-2xl p-6">
-        <i data-lucide="brain" class="w-6 h-6 text-pine-600 mb-4"></i>
-        <div class="font-heading font-bold text-pine-950 mb-2">Knowledge area</div>
-        <p class="text-sm text-[#5A6B5E] leading-relaxed">Teach Vovo about you — routine, diet, job, motivation. Add notes in the app or with <code class="text-pine-700 bg-pine-50 px-1 rounded">/know ...</code>. It also learns from chat. Up to 25 notes.</p>
-      </div>
-      <div class="card rounded-2xl p-6 border-t-2 border-t-candle-400">
-        <i data-lucide="message-circle" class="w-6 h-6 text-pine-600 mb-4"></i>
-        <div class="font-heading font-bold text-pine-950 mb-2">Chat anywhere</div>
-        <p class="text-sm text-[#5A6B5E] leading-relaxed">Plan your day on the site, get pinged on your phone. Manage reminders with <code class="text-pine-700 bg-pine-50 px-1 rounded">/reminders</code>, set your timezone with <code class="text-pine-700 bg-pine-50 px-1 rounded">/timezone</code>.</p>
-      </div>
-    </div>
-    <a href="/app.html" class="cta mt-6 inline-flex items-center gap-2 bg-pine-800 hover:bg-pine-700 text-white font-semibold px-6 h-11 rounded-xl text-sm"><i data-lucide="layout-dashboard" class="w-4 h-4"></i> Open the web app</a>
+    <p class="text-[16px] text-[#5A6B5E] leading-relaxed">This is what powers your coach. It's free from Google — no card, takes 1 minute.</p>
+    <ol class="mt-5 space-y-5">
+      <li class="flex gap-3"><span class="sub">a</span><div class="text-[16px] text-[#2B3A2F] leading-relaxed">In the Vovo chat, tap <b>🔑 Connect my free AI key</b>, then tap <b>Get my free key</b>.</div></li>
+      <li class="flex gap-3"><span class="sub">b</span><div class="text-[16px] text-[#2B3A2F] leading-relaxed">Sign in with your Google (Gmail) account.</div></li>
+      <li class="flex gap-3"><span class="sub">c</span><div class="flex-1"><div class="text-[16px] text-[#2B3A2F] leading-relaxed">Tap <b>Create API key</b>, then tap <b>Copy</b>.</div>
+        <div class="phone mt-3">
+          <div class="phone-bar justify-center"><span class="text-[12px] text-[#7A8B7E] font-mono">aistudio.google.com</span></div>
+          <div class="p-4 space-y-3" style="background:#FAFCF8">
+            <div class="font-heading font-bold text-[15px] text-pine-900">API keys</div>
+            <div class="mark inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#1A73E8] text-white text-[13px] font-medium"><i data-lucide="plus" class="w-4 h-4"></i>Create API key</div>
+            <div class="bg-white border border-[#E6EDE6] rounded-xl p-3 flex items-center justify-between">
+              <code class="text-[12px] text-[#4B5E50]">AIzaSy•••••••••••••</code>
+              <span class="mark text-[12px] px-3 py-1.5 rounded-lg bg-candle-100 border border-candle-300 text-candle-600 flex items-center gap-1"><i data-lucide="copy" class="w-3.5 h-3.5"></i>Copy</span>
+            </div>
+          </div>
+        </div></div></li>
+      <li class="flex gap-3"><span class="sub">d</span><div class="text-[16px] text-[#2B3A2F] leading-relaxed">Go back to Telegram, press and hold the message box, tap <b>Paste</b>, and send it. Vovo replies <b>"✅ You're all set!"</b> and deletes your message so the key stays private.</div></li>
+    </ol>
+    <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener" class="big-btn soft mt-6"><i data-lucide="key-round" class="w-5 h-5"></i> Get my free key</a>
   </section>
 
-  <div class="card rounded-2xl p-6 flex flex-col sm:flex-row items-center justify-between gap-5 border-l-4 border-l-candle-400">
-    <div class="flex items-center gap-4">
-      <i data-lucide="life-buoy" class="w-8 h-8 text-pine-600 shrink-0"></i>
-      <div>
-        <div class="font-heading font-bold text-pine-950">Stuck on a step?</div>
-        <div class="text-sm text-[#5A6B5E]">Message support and we'll get you set up.</div>
+  <!-- HOW TO USE -->
+  <section class="mt-12 mb-10">
+    <h2 class="font-heading font-bold text-[26px] text-pine-950 text-center">How to use Vovo</h2>
+    <p class="text-center text-[16px] text-[#5A6B5E] mt-2">Just text it like a friend. No commands to remember.</p>
+    <div class="grid sm:grid-cols-2 gap-4 mt-7">
+      <div class="card rounded-3xl p-6">
+        <i data-lucide="alarm-clock" class="w-7 h-7 text-pine-600 mb-3"></i>
+        <div class="font-heading font-bold text-[18px] text-pine-950 mb-2">It texts you on time</div>
+        <p class="text-[15px] text-[#5A6B5E] leading-relaxed">Say <i>"I want to work out at 4"</i> and your phone buzzes at 4:00. Say <i>"every day at 7"</i> and it repeats.</p>
+      </div>
+      <div class="card rounded-3xl p-6">
+        <i data-lucide="hand" class="w-7 h-7 text-pine-600 mb-3"></i>
+        <div class="font-heading font-bold text-[18px] text-pine-950 mb-2">One tap to answer</div>
+        <p class="text-[15px] text-[#5A6B5E] leading-relaxed">When it checks in, tap <b>✅ On it</b>, <b>⏳ 10 min</b> or <b>❌ Skip</b>. Changed plans? Say <i>"cancel my gym reminder"</i>.</p>
+      </div>
+      <div class="card rounded-3xl p-6">
+        <i data-lucide="user-round" class="w-7 h-7 text-pine-600 mb-3"></i>
+        <div class="font-heading font-bold text-[18px] text-pine-950 mb-2">It gets to know you</div>
+        <p class="text-[15px] text-[#5A6B5E] leading-relaxed">Tell it about your job, routine, goals. It remembers — see and edit everything in the app under <b>About me</b>.</p>
+      </div>
+      <div class="card rounded-3xl p-6 border-t-2 border-t-candle-400">
+        <i data-lucide="smartphone" class="w-7 h-7 text-pine-600 mb-3"></i>
+        <div class="font-heading font-bold text-[18px] text-pine-950 mb-2">Your Vovo app</div>
+        <p class="text-[15px] text-[#5A6B5E] leading-relaxed">Tap the <b>Vovo</b> button next to where you type in Telegram. Want it on your home screen? Open the app's <b>Setup</b> tab and follow the 3 taps.</p>
       </div>
     </div>
-    <a href="mailto:aharonohevshalom123@gmail.com?subject=Vovo%20setup%20help" class="cta shrink-0 inline-flex items-center gap-2 bg-pine-800 hover:bg-pine-700 text-white font-semibold px-6 h-11 rounded-xl text-sm">
-      <i data-lucide="mail" class="w-4 h-4"></i> Get help
-    </a>
+    <a href="https://t.me/vovo_aharonenterprise_bot?start=web" class="big-btn mt-6"><i data-lucide="smartphone" class="w-5 h-5"></i> Open my Vovo app</a>
+
+    <details class="card rounded-2xl mt-6 px-5 py-4 text-[15px] text-[#5A6B5E]">
+      <summary class="font-semibold text-pine-900 cursor-pointer">Prefer typing commands? (optional)</summary>
+      <div class="mt-3 space-y-1.5 font-mono text-[13px] text-pine-800">
+        <div>/web — open your app</div><div>/reminders — see &amp; cancel reminders</div><div>/know … — tell Vovo a fact about you</div>
+        <div>/goals … — set your goals</div><div>/timezone … — e.g. /timezone America/New_York</div><div>/status — quick check-in</div><div>/help — how Vovo works</div>
+      </div>
+    </details>
+  </section>
+
+  <div class="card rounded-3xl p-6 flex flex-col sm:flex-row items-center justify-between gap-5 border-l-4 border-l-candle-400 text-center sm:text-left">
+    <div class="flex flex-col sm:flex-row items-center gap-4">
+      <i data-lucide="life-buoy" class="w-9 h-9 text-pine-600 shrink-0"></i>
+      <div>
+        <div class="font-heading font-bold text-[18px] text-pine-950">Stuck on a step?</div>
+        <div class="text-[15px] text-[#5A6B5E]">Email us and we'll set it up with you.</div>
+      </div>
+    </div>
+    <a href="mailto:aharonohevshalom123@gmail.com?subject=Vovo%20setup%20help" class="big-btn !w-full sm:!w-auto shrink-0"><i data-lucide="mail" class="w-5 h-5"></i> Get help</a>
   </div>
 </main>
 
