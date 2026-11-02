@@ -1,16 +1,12 @@
 {
   "functions": {
-    "api/webhook.js": {
-      "maxDuration": 60
-    },
-    "api/cron.js": {
-      "maxDuration": 60
+    "api/webhook.js": { "maxDuration": 60 },
+    "api/app.js": { "maxDuration": 60 },
+    "api/cron.js": { "maxDuration": 60 },
+    "api/remind.js": {
+      "maxDuration": 60,
+      "experimentalTriggers": [{ "type": "queue/v2beta", "topic": "vovo-reminders" }]
     }
   },
-  "crons": [
-    {
-      "path": "/api/cron",
-      "schedule": "0 8 * * *"
-    }
-  ]
+  "crons": [{ "path": "/api/cron", "schedule": "0 6 * * *" }]
 }

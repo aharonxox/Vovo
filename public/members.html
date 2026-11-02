@@ -53,11 +53,11 @@ tailwind.config = { theme: { extend: {
       <i data-lucide="badge-check" class="w-3.5 h-3.5"></i> Member access unlocked
     </div>
     <h1 class="font-heading font-extrabold text-[clamp(2rem,5vw,3.25rem)] text-pine-950 leading-tight">Let's get Vovo running.</h1>
-    <p class="mt-4 text-[#5A6B5E] max-w-xl mx-auto leading-relaxed">Two quick setup steps and your coach is live. First you'll grab a <b class="text-pine-800">free Google Gemini API key</b> (that's what powers Vovo's brain — keeps it free), then connect Telegram.</p>
+    <p class="mt-4 text-[#5A6B5E] max-w-xl mx-auto leading-relaxed">Three quick steps and your coach is live. First you'll grab a <b class="text-pine-800">free Google Gemini API key</b> (that's what powers Vovo's brain — keeps it free), then connect Telegram.</p>
   </div>
 
   <!-- STEP 1 -->
-  <section class="mb-14">
+  <section id="key" class="mb-14 scroll-mt-24">
     <div class="flex items-center gap-3 mb-6">
       <span class="w-9 h-9 rounded-xl bg-pine-800 grid place-items-center font-heading font-extrabold text-white">1</span>
       <h2 class="font-heading font-bold text-2xl text-pine-950">Get your free Gemini API key</h2>
@@ -121,7 +121,7 @@ tailwind.config = { theme: { extend: {
     </div>
     <div class="card rounded-2xl p-8 space-y-5 text-sm text-[#5A6B5E] leading-relaxed">
       <p><b class="text-pine-900">a)</b> Open the bot: <a href="https://t.me/vovo_aharonenterprise_bot" target="_blank" rel="noopener" class="text-pine-700 underline underline-offset-2">t.me/vovo_aharonenterprise_bot</a></p>
-      <p><b class="text-pine-900">b)</b> Send <code class="text-pine-700 bg-pine-50 px-1.5 py-0.5 rounded">/start</code>, then paste your Gemini key when asked.</p>
+      <p><b class="text-pine-900">b)</b> Send <code class="text-pine-700 bg-pine-50 px-1.5 py-0.5 rounded">/start</code>, then connect your key: <code class="text-pine-700 bg-pine-50 px-1.5 py-0.5 rounded">/key AIza...</code> (Vovo deletes that message instantly and stores the key encrypted).</p>
       <p><b class="text-pine-900">c)</b> Set yourself up:</p>
       <div class="bg-[#F4F8F3] border border-[#E6EDE6] rounded-xl p-5 font-mono text-[13px] space-y-2 text-pine-800">
         <div>/goals Ship the client site · Gym 4x this week</div>
@@ -130,6 +130,34 @@ tailwind.config = { theme: { extend: {
       </div>
       <p class="text-[#7A8B7E]">That's it. Vovo takes it from there — daily check-ins, memory, and zero tolerance for excuses.</p>
     </div>
+  </section>
+
+
+  <!-- STEP 3 -->
+  <section class="mb-14">
+    <div class="flex items-center gap-3 mb-6">
+      <span class="w-9 h-9 rounded-xl bg-candle-500 grid place-items-center font-heading font-extrabold text-white">3</span>
+      <h2 class="font-heading font-bold text-2xl text-pine-950">Use your Vovo web app</h2>
+    </div>
+    <p class="text-[#5A6B5E] text-sm mb-6 leading-relaxed">Send <code class="text-pine-700 bg-pine-50 px-1.5 py-0.5 rounded">/web</code> to the bot — it replies with a private button that opens your web app. Same coach, same memory as Telegram.</p>
+    <div class="grid sm:grid-cols-3 gap-4">
+      <div class="card rounded-2xl p-6">
+        <i data-lucide="alarm-clock" class="w-6 h-6 text-pine-600 mb-4"></i>
+        <div class="font-heading font-bold text-pine-950 mb-2">Timed reminders</div>
+        <p class="text-sm text-[#5A6B5E] leading-relaxed">Just say it: <i>"I'll work out at 4"</i> or <i>"wake me every day at 6"</i>. At that exact time Vovo texts you on Telegram with ✅ / ⏳ 10 min / ❌ buttons.</p>
+      </div>
+      <div class="card rounded-2xl p-6">
+        <i data-lucide="brain" class="w-6 h-6 text-pine-600 mb-4"></i>
+        <div class="font-heading font-bold text-pine-950 mb-2">Knowledge area</div>
+        <p class="text-sm text-[#5A6B5E] leading-relaxed">Teach Vovo about you — routine, diet, job, motivation. Add notes in the app or with <code class="text-pine-700 bg-pine-50 px-1 rounded">/know ...</code>. It also learns from chat. Up to 25 notes.</p>
+      </div>
+      <div class="card rounded-2xl p-6 border-t-2 border-t-candle-400">
+        <i data-lucide="message-circle" class="w-6 h-6 text-pine-600 mb-4"></i>
+        <div class="font-heading font-bold text-pine-950 mb-2">Chat anywhere</div>
+        <p class="text-sm text-[#5A6B5E] leading-relaxed">Plan your day on the site, get pinged on your phone. Manage reminders with <code class="text-pine-700 bg-pine-50 px-1 rounded">/reminders</code>, set your timezone with <code class="text-pine-700 bg-pine-50 px-1 rounded">/timezone</code>.</p>
+      </div>
+    </div>
+    <a href="/app.html" class="cta mt-6 inline-flex items-center gap-2 bg-pine-800 hover:bg-pine-700 text-white font-semibold px-6 h-11 rounded-xl text-sm"><i data-lucide="layout-dashboard" class="w-4 h-4"></i> Open the web app</a>
   </section>
 
   <div class="card rounded-2xl p-6 flex flex-col sm:flex-row items-center justify-between gap-5 border-l-4 border-l-candle-400">

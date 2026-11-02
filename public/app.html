@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Vovo — Your Coach</title>
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#FBFCF9">
+<link rel="icon" type="image/png" href="/brand/favicon.png">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+<script>
+tailwind.config = { theme: { extend: {
+  fontFamily: { heading: ['"Plus Jakarta Sans"','sans-serif'], body: ['Inter','sans-serif'] },
+  colors: {
+    pine: { 50:'#F0F7F1',100:'#DBEDE0',200:'#BCDCC6',300:'#8FC3A1',400:'#5DA477',500:'#38875A',600:'#276B46',700:'#1B5E3B',800:'#14532D',900:'#0F3D22',950:'#082615' },
+    candle: { 100:'#FBF3DF',200:'#F6E7BF',300:'#EDD49A',400:'#E3C06E',500:'#D9A94A',600:'#B98A33' }
+  }
+} } }
+</script>
+<style>
+  html, body { height:100%; }
+  body { background:#FBFCF9; color:#1C2B21; font-family:Inter,sans-serif; }
+  .font-heading { font-family:"Plus Jakarta Sans",sans-serif; letter-spacing:-0.03em; }
+  .card { background:#fff; border:1px solid #E6EDE6; box-shadow:0 1px 2px rgba(16,61,34,.04),0 4px 12px -2px rgba(16,61,34,.05); }
+  .field { width:100%; background:#fff; border:1px solid #DCE5DC; border-radius:12px; padding:10px 14px; font-size:14px; outline:none; transition:border-color .2s, box-shadow .2s; }
+  .field:focus { border-color:#276B46; box-shadow:0 0 0 3px rgba(39,107,70,.12); }
+  .btn { display:inline-flex; align-items:center; justify-content:center; gap:8px; background:#14532D; color:#fff; font-weight:600; border-radius:12px; padding:0 18px; height:42px; font-size:14px; transition:transform .15s, background .2s; }
+  .btn:hover { background:#1B5E3B; } .btn:active { transform:scale(.98); } .btn:disabled { opacity:.5; }
+  .tab { color:#6B7C6F; } .tab.active { color:#14532D; }
+  .tab.active .dot { background:#D9A94A; }
+  .bubble-me { background:#14532D; color:#fff; border-radius:18px 18px 4px 18px; }
+  .bubble-vovo { background:#fff; border:1px solid #E6EDE6; border-radius:18px 18px 18px 4px; }
+  .typing span { width:6px; height:6px; border-radius:50%; background:#8FC3A1; display:inline-block; animation:b 1s infinite; }
+  .typing span:nth-child(2){animation-delay:.15s} .typing span:nth-child(3){animation-delay:.3s}
+  @keyframes b { 0%,80%,100%{transform:translateY(0);opacity:.5} 40%{transform:translateY(-4px);opacity:1} }
+  .fade { animation:f .25s ease-out; } @keyframes f { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:none} }
+  @media (prefers-reduced-motion: reduce) { * { animation:none !important; transition:none !important; } }
+</style>
+</head>
+<body class="font-body antialiased">
+
+<!-- Not connected -->
+<div id="connect" class="hidden min-h-full grid place-items-center px-6 py-16">
+  <div class="card rounded-3xl p-8 sm:p-10 max-w-md w-full text-center fade">
+    <img src="/brand/vovo-mark.png" alt="Vovo" class="w-16 h-16 rounded-2xl mx-auto mb-6">
+    <h1 class="font-heading font-extrabold text-3xl text-pine-950">Connect your Telegram</h1>
+    <p class="mt-3 text-[#5A6B5E] text-sm leading-relaxed">Your web app is tied to your Telegram, so reminders can reach your phone. Open the bot and tap <b class="text-pine-800">Start</b> — it sends you a private link back here.</p>
+    <a id="connect-btn" href="https://t.me/vovo_aharonenterprise_bot?start=web" target="_blank" rel="noopener" class="btn w-full mt-7 h-12"><i data-lucide="send" class="w-4 h-4"></i> Open Vovo on Telegram</a>
+    <p class="mt-4 text-xs text-[#93A596]">Already chatting with Vovo? Just send <code class="text-pine-700 bg-pine-50 px-1.5 py-0.5 rounded">/web</code></p>
+    <p id="connect-err" class="mt-4 text-xs text-red-600 hidden"></p>
+  </div>
+</div>
+
+<!-- App -->
+<div id="app" class="hidden h-full flex flex-col">
+  <header class="bg-white/85 backdrop-blur-md border-b border-[#E6EDE6] shrink-0">
+    <div class="max-w-5xl mx-auto flex items-center justify-between px-5 h-16">
+      <a href="/" class="flex items-center gap-2.5 font-heading font-extrabold text-xl text-pine-800"><img src="/brand/vovo-mark.png" alt="" class="w-9 h-9 rounded-xl"> Vovo</a>
+      <nav class="hidden md:flex items-center gap-1 text-sm font-medium" id="tabs-top"></nav>
+      <div class="flex items-center gap-2 text-xs text-[#5A6B5E]"><span class="w-2 h-2 rounded-full bg-pine-500"></span><span id="hello">Synced with Telegram</span></div>
+    </div>
+  </header>
+
+  <main class="flex-1 min-h-0 max-w-5xl w-full mx-auto">
+    <!-- Chat -->
+    <section data-view="chat" class="view h-full flex flex-col">
+      <div id="msgs" class="flex-1 overflow-y-auto px-5 py-6 space-y-3"></div>
+      <div class="px-5 pb-4 pt-2 shrink-0">
+        <div id="suggest" class="flex gap-2 overflow-x-auto pb-2 text-xs"></div>
+        <form id="chat-form" class="card rounded-2xl p-2 flex items-end gap-2">
+          <textarea id="chat-input" rows="1" maxlength="2000" placeholder="Tell Vovo your plan… e.g. I'll work out at 4" class="flex-1 resize-none bg-transparent px-3 py-2.5 text-[15px] outline-none max-h-40"></textarea>
+          <button class="btn h-11 w-11 !px-0 shrink-0" aria-label="Send"><i data-lucide="arrow-up" class="w-5 h-5"></i></button>
+        </form>
+      </div>
+    </section>
+
+    <!-- Reminders -->
+    <section data-view="reminders" class="view hidden h-full overflow-y-auto px-5 py-8">
+      <h2 class="font-heading font-bold text-2xl text-pine-950">Reminders</h2>
+      <p class="text-sm text-[#5A6B5E] mt-1">Vovo texts you on Telegram at these times. Easiest way to add one: just tell Vovo in chat.</p>
+      <form id="rem-form" class="card rounded-2xl p-5 mt-6 grid sm:grid-cols-[1fr_auto_auto_auto] gap-3">
+        <input id="rem-text" class="field" maxlength="200" placeholder="What? e.g. Gym — no excuses" required>
+        <input id="rem-at" type="datetime-local" class="field" required>
+        <select id="rem-repeat" class="field"><option value="none">Once</option><option value="daily">Every day</option></select>
+        <button class="btn"><i data-lucide="plus" class="w-4 h-4"></i>Add</button>
+      </form>
+      <div id="rem-list" class="mt-6 space-y-2"></div>
+    </section>
+
+    <!-- Knowledge -->
+    <section data-view="knowledge" class="view hidden h-full overflow-y-auto px-5 py-8">
+      <div class="flex items-end justify-between gap-4">
+        <div>
+          <h2 class="font-heading font-bold text-2xl text-pine-950">What Vovo knows about you</h2>
+          <p class="text-sm text-[#5A6B5E] mt-1">Facts Vovo uses in every reply. It also learns from chat automatically.</p>
+        </div>
+        <span id="k-count" class="shrink-0 text-xs font-semibold px-3 py-1.5 rounded-full bg-candle-100 border border-candle-300 text-candle-600"></span>
+      </div>
+      <form id="k-form" class="card rounded-2xl p-5 mt-6 flex flex-col sm:flex-row gap-3">
+        <input id="k-text" class="field" maxlength="400" placeholder="e.g. I'm in Israel, vegan, classes start at 9" required>
+        <button class="btn shrink-0"><i data-lucide="brain" class="w-4 h-4"></i>Teach Vovo</button>
+      </form>
+      <div id="k-list" class="mt-6 grid sm:grid-cols-2 gap-3"></div>
+    </section>
+
+    <!-- Settings -->
+    <section data-view="settings" class="view hidden h-full overflow-y-auto px-5 py-8">
+      <h2 class="font-heading font-bold text-2xl text-pine-950">Your setup</h2>
+      <form id="s-form" class="card rounded-2xl p-6 mt-6 space-y-5 max-w-2xl">
+        <label class="block"><span class="text-sm font-medium text-pine-900">Name</span><input id="s-name" class="field mt-1.5" maxlength="60"></label>
+        <label class="block"><span class="text-sm font-medium text-pine-900">Goals</span><textarea id="s-goals" rows="2" class="field mt-1.5" maxlength="600" placeholder="Gym 4x/week · Ship the client site by Friday"></textarea></label>
+        <label class="block"><span class="text-sm font-medium text-pine-900">Daily routine</span><textarea id="s-schedule" rows="2" class="field mt-1.5" maxlength="600" placeholder="06:00 Wake · 09:00 Classes · 18:00 Build"></textarea></label>
+        <label class="block"><span class="text-sm font-medium text-pine-900">Timezone</span><select id="s-tz" class="field mt-1.5"></select></label>
+        <div class="border-t border-[#EAEFEA] pt-5">
+          <div class="flex items-center justify-between gap-3">
+            <span class="text-sm font-medium text-pine-900">Your Gemini key</span>
+            <span id="s-keystate" class="text-xs px-2.5 py-1 rounded-full"></span>
+          </div>
+          <input id="s-key" type="password" autocomplete="off" class="field mt-1.5" placeholder="AIza… (free at aistudio.google.com)">
+          <p class="text-xs text-[#93A596] mt-1.5">Stored encrypted. <a href="/members.html#key" class="text-pine-700 underline">How to get one</a> · <button type="button" id="s-rmkey" class="text-pine-700 underline hidden">Remove key</button></p>
+        </div>
+        <button class="btn"><i data-lucide="check" class="w-4 h-4"></i>Save</button>
+      </form>
+      <div class="max-w-2xl mt-6 text-xs text-[#93A596] flex flex-wrap gap-4">
+        <a id="tg-link" href="#" target="_blank" rel="noopener" class="text-pine-700 underline">Open Telegram chat</a>
+        <button id="logout" class="underline">Sign out of this device</button>
+      </div>
+    </section>
+  </main>
+
+  <nav class="md:hidden shrink-0 bg-white border-t border-[#E6EDE6] grid grid-cols-4 pb-[env(safe-area-inset-bottom)]" id="tabs-bottom"></nav>
+</div>
+
+<div id="toast" class="fixed left-1/2 -translate-x-1/2 bottom-24 md:bottom-8 z-50 hidden px-4 py-2.5 rounded-xl text-sm shadow-lg"></div>
+
+<script>
+const TABS = [['chat','message-circle','Chat'],['reminders','alarm-clock','Reminders'],['knowledge','brain','Knowledge'],['settings','settings-2','Setup']];
+const TZS = ['Asia/Jerusalem','Europe/London','Europe/Paris','Europe/Berlin','Europe/Moscow','Asia/Dubai','Asia/Kolkata','Asia/Singapore','Asia/Tokyo','Australia/Sydney','America/New_York','America/Chicago','America/Denver','America/Los_Angeles','America/Sao_Paulo','Africa/Johannesburg','UTC'];
+const SUGGEST = ["I'll work out at 4", "Remind me every day at 6 to wake up", "What should I focus on right now?", "I'm procrastinating"];
+const $ = (s) => document.querySelector(s);
+let token = null, state = null, sending = false;
+
+const hashT = new URLSearchParams(location.hash.slice(1)).get('t');
+if (hashT) { localStorage.setItem('vovo_token', hashT); history.replaceState(null, '', location.pathname); }
+token = localStorage.getItem('vovo_token');
+
+function esc(s) { return String(s).replace(/[&<>"']/g, (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function md(s) { return esc(s).replace(/\*\*(.+?)\*\*|\*(.+?)\*/g, (m, a, b) => `<b>${a || b}</b>`).replace(/`([^`]+)`/g, '<code class="bg-pine-50 text-pine-800 px-1 rounded">$1</code>').replace(/\n/g, '<br>'); }
+function toast(msg, bad) { const t = $('#toast'); t.textContent = msg; t.className = `fixed left-1/2 -translate-x-1/2 bottom-24 md:bottom-8 z-50 px-4 py-2.5 rounded-xl text-sm shadow-lg ${bad ? 'bg-red-600 text-white' : 'bg-pine-900 text-white'}`; clearTimeout(t._h); t._h = setTimeout(() => t.classList.add('hidden'), 3000); }
+
+async function api(action, data = {}) {
+  const r = await fetch('/api/app', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ token, action, ...data }) });
+  const j = await r.json().catch(() => ({ error: 'Network error' }));
+  if (r.status === 401) { localStorage.removeItem('vovo_token'); showConnect(j.error); throw new Error(j.error); }
+  if (!r.ok) throw new Error(j.error || 'Something went wrong');
+  return j;
+}
+
+function showConnect(err) {
+  $('#app').classList.add('hidden'); $('#connect').classList.remove('hidden');
+  if (err) { $('#connect-err').textContent = err; $('#connect-err').classList.remove('hidden'); }
+  lucide.createIcons();
+}
+
+function renderTabs() {
+  const view = location.hash.replace('#', '') || 'chat';
+  const top = TABS.map(([id, icon, label]) => `<a href="#${id}" class="tab ${view === id ? 'active' : ''} px-3.5 py-2 rounded-lg hover:bg-pine-50 flex items-center gap-2"><i data-lucide="${icon}" class="w-4 h-4"></i>${label}</a>`).join('');
+  const bottom = TABS.map(([id, icon, label]) => `<a href="#${id}" class="tab ${view === id ? 'active' : ''} flex flex-col items-center gap-1 py-2.5 text-[11px] font-medium"><span class="relative"><i data-lucide="${icon}" class="w-5 h-5"></i><span class="dot absolute -top-0.5 -right-1.5 w-1.5 h-1.5 rounded-full"></span></span>${label}</a>`).join('');
+  $('#tabs-top').innerHTML = top; $('#tabs-bottom').innerHTML = bottom;
+  document.querySelectorAll('.view').forEach((v) => v.classList.toggle('hidden', v.dataset.view !== view));
+  lucide.createIcons();
+  if (view === 'chat') scrollChat();
+}
+
+function bubble(m) {
+  const me = m.role === 'user';
+  const src = m.src === 'telegram' ? '<span class="text-[10px] opacity-60 ml-1">via Telegram</span>' : '';
+  return `<div class="flex ${me ? 'justify-end' : 'justify-start'} fade"><div class="${me ? 'bubble-me' : 'bubble-vovo'} max-w-[85%] sm:max-w-[70%] px-4 py-2.5 text-[15px] leading-relaxed">${md(m.text)}${src}</div></div>`;
+}
+function renderChat(pending) {
+  const h = state.history;
+  const intro = !h.length ? bubble({ role: 'vovo', text: `🔥 *${esc(state.profile.name || 'Champ')}, I'm Vovo.* Tell me what you're executing today and when — I'll text you on Telegram at that exact time.` }) : '';
+  $('#msgs').innerHTML = intro + h.map(bubble).join('') + (pending ? bubble({ role: 'user', text: pending }) + '<div class="flex fade"><div class="bubble-vovo px-4 py-3.5 typing flex gap-1"><span></span><span></span><span></span></div></div>' : '');
+  $('#suggest').innerHTML = h.length > 4 ? '' : SUGGEST.map((s) => `<button type="button" class="shrink-0 px-3 py-1.5 rounded-full bg-white border border-[#E6EDE6] text-[#4B5E50] hover:border-pine-300">${esc(s)}</button>`).join('');
+  scrollChat();
+}
+function scrollChat() { const m = $('#msgs'); requestAnimationFrame(() => m.scrollTop = m.scrollHeight); }
+
+function renderReminders() {
+  const list = state.reminders;
+  $('#rem-list').innerHTML = list.length ? list.map((r) => `
+    <div class="card rounded-2xl px-5 py-4 flex items-center gap-4 fade">
+      <div class="w-10 h-10 rounded-xl ${r.repeat === 'daily' ? 'bg-candle-100 text-candle-600' : 'bg-pine-50 text-pine-700'} grid place-items-center shrink-0"><i data-lucide="${r.repeat === 'daily' ? 'repeat' : 'alarm-clock'}" class="w-5 h-5"></i></div>
+      <div class="flex-1 min-w-0"><div class="font-medium text-pine-950 truncate">${esc(r.text)}</div><div class="text-xs text-[#7A8B7E] mt-0.5">${esc(r.local)}${r.repeat === 'daily' ? ' · every day' : ''}</div></div>
+      <button data-cancel="${r.id}" class="text-[#93A596] hover:text-red-600 p-2" aria-label="Cancel"><i data-lucide="x" class="w-4 h-4"></i></button>
+    </div>`).join('') : `<div class="text-center text-sm text-[#93A596] py-12">No reminders yet. Tell Vovo "I'll study at 8" in chat.</div>`;
+}
+function renderKnowledge() {
+  const k = state.knowledge, L = state.limits;
+  $('#k-count').textContent = `${k.length} / ${L.knowledgeItems}`;
+  $('#k-list').innerHTML = k.length ? k.map((n) => `
+    <div class="card rounded-2xl p-4 flex gap-3 items-start fade">
+      <i data-lucide="sparkle" class="w-4 h-4 text-candle-500 mt-0.5 shrink-0"></i>
+      <div class="flex-1 text-sm text-[#2B3A2F] leading-relaxed">${esc(n.text)}</div>
+      <button data-kdel="${n.id}" class="text-[#93A596] hover:text-red-600" aria-label="Delete"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+    </div>`).join('') : `<div class="sm:col-span-2 text-center text-sm text-[#93A596] py-12">Nothing yet. Teach Vovo who you are — routine, diet, job, what motivates you.</div>`;
+}
+function renderSettings() {
+  const p = state.profile;
+  $('#s-name').value = p.name || ''; $('#s-goals').value = p.goals; $('#s-schedule').value = p.schedule;
+  const tzs = TZS.includes(p.timezone) ? TZS : [p.timezone, ...TZS];
+  $('#s-tz').innerHTML = tzs.map((z) => `<option ${z === p.timezone ? 'selected' : ''}>${z}</option>`).join('');
+  $('#s-keystate').textContent = p.hasOwnKey ? 'Your key ✓' : "Using Vovo's shared key";
+  $('#s-keystate').className = `text-xs px-2.5 py-1 rounded-full ${p.hasOwnKey ? 'bg-pine-50 text-pine-700 border border-pine-200' : 'bg-candle-100 text-candle-600 border border-candle-300'}`;
+  $('#s-rmkey').classList.toggle('hidden', !p.hasOwnKey);
+  $('#hello').textContent = `${p.name || 'Champ'} · synced with Telegram`;
+  $('#tg-link').href = `https://t.me/${state.bot}`;
+}
+function renderAll(pending) { renderChat(pending); renderReminders(); renderKnowledge(); renderSettings(); lucide.createIcons(); }
+function apply(j) { state = j; renderAll(); }
+
+async function sendChat(text) {
+  if (sending || !text.trim()) return;
+  sending = true; $('#chat-input').value = ''; autosize();
+  renderChat(text); lucide.createIcons();
+  try { const j = await api('chat', { text }); apply(j); if (j.learned?.length) toast(`🧠 Vovo learned ${j.learned.length} new thing${j.learned.length > 1 ? 's' : ''} about you`); }
+  catch (e) { toast(e.message, true); renderChat(); $('#chat-input').value = text; }
+  finally { sending = false; }
+}
+function autosize() { const t = $('#chat-input'); t.style.height = 'auto'; t.style.height = Math.min(t.scrollHeight, 160) + 'px'; }
+
+$('#chat-form').addEventListener('submit', (e) => { e.preventDefault(); sendChat($('#chat-input').value); });
+$('#chat-input').addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendChat(e.target.value); } });
+$('#chat-input').addEventListener('input', autosize);
+$('#suggest').addEventListener('click', (e) => { if (e.target.matches('button')) sendChat(e.target.textContent); });
+$('#rem-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  try { apply(await api('reminder_add', { text: $('#rem-text').value, at: new Date($('#rem-at').value).toISOString(), repeat: $('#rem-repeat').value })); e.target.reset(); toast('⏰ Reminder set — check Telegram'); }
+  catch (err) { toast(err.message, true); }
+});
+$('#rem-list').addEventListener('click', async (e) => { const b = e.target.closest('[data-cancel]'); if (b) try { apply(await api('reminder_cancel', { id: b.dataset.cancel })); toast('Reminder cancelled'); } catch (err) { toast(err.message, true); } });
+$('#k-form').addEventListener('submit', async (e) => { e.preventDefault(); try { apply(await api('knowledge_add', { text: $('#k-text').value })); e.target.reset(); toast('🧠 Saved'); } catch (err) { toast(err.message, true); } });
+$('#k-list').addEventListener('click', async (e) => { const b = e.target.closest('[data-kdel]'); if (b) try { apply(await api('knowledge_delete', { id: b.dataset.kdel })); } catch (err) { toast(err.message, true); } });
+$('#s-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  try { apply(await api('settings', { name: $('#s-name').value, goals: $('#s-goals').value, schedule: $('#s-schedule').value, timezone: $('#s-tz').value, geminiKey: $('#s-key').value })); $('#s-key').value = ''; toast('Saved'); }
+  catch (err) { toast(err.message, true); }
+});
+$('#s-rmkey').addEventListener('click', async () => { try { apply(await api('settings', { removeKey: true })); toast('Key removed'); } catch (err) { toast(err.message, true); } });
+$('#logout').addEventListener('click', () => { localStorage.removeItem('vovo_token'); location.href = '/'; });
+window.addEventListener('hashchange', renderTabs);
+document.addEventListener('visibilitychange', async () => { if (!document.hidden && state && !sending) try { apply(await api('load')); } catch {} });
+
+(async () => {
+  if (!token) return showConnect();
+  try { apply(await api('load')); $('#app').classList.remove('hidden'); renderTabs(); }
+  catch (e) { if (!$('#connect').classList.contains('hidden')) return; showConnect(e.message); }
+})();
+</script>
+</body>
+</html>

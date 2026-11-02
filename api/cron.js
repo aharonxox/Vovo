@@ -1,38 +1,24 @@
-import { allUserProfiles } from './_store.js';
+import { sendMessage, sweepDueReminders } from './_core.js';
+import { allUsers, pruneOldReminders } from './_store.js';
 
 export default async function handler(req, res) {
-  const authHeader = req.headers.authorization;
-  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+  if (req.headers.authorization !== `Bearer ${process.env.CRON_SECRET}`) {
     return res.status(401).json({ error: 'Unauthorized' });
   }
-
   try {
-    const profiles = await allUserProfiles();
-
-    for (const profile of profiles) {
-      if (profile && profile.chatId) {
-        await fetch(`https://api.telegram.org/bot${process.env.TELEGRAM_TOKEN}/sendMessage`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            chat_id: profile.chatId,
-            text: `🚨 **VOVO AUDIT**: Standard time check, *${profile.name || 'Champ'}*.\n\nTarget Goals: *${profile.goals || 'Execution'}*\n\nAre you executing right now or making excuses?`,
-            parse_mode: 'Markdown',
-            reply_markup: {
-              inline_keyboard: [
-                [
-                  { text: "✅ Executing", callback_data: "status_done" },
-                  { text: "⏱️ Delayed", callback_data: "status_late" },
-                  { text: "❌ Off Track", callback_data: "status_slacking" }
-                ]
-              ]
-            }
-          })
-        });
-      }
+    const swept = await sweepDueReminders();
+    await pruneOldReminders();
+    const users = await allUsers();
+    for (const u of users) {
+      await sendMessage(u.chatId, `🚨 *VOVO AUDIT*: Daily check, *${u.name || 'Champ'}*.\n\nTarget: *${u.goals || 'Execution'}*\n\nWhat are you executing today? Tell me the times and I'll hold you to them.`, {
+        reply_markup: { inline_keyboard: [[
+          { text: '✅ Executing', callback_data: 'status_done' },
+          { text: '⏱️ Delayed', callback_data: 'status_late' },
+          { text: '❌ Off Track', callback_data: 'status_slacking' }
+        ]] }
+      }).catch((e) => console.error('audit send', e.message));
     }
-
-    return res.status(200).json({ success: true, processed: profiles.length });
+    return res.status(200).json({ success: true, processed: users.length, swept });
   } catch (error) {
     console.error('Cron Execution Error:', error);
     return res.status(500).json({ error: error.message });

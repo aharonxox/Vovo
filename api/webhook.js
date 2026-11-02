@@ -1,181 +1,152 @@
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import {
+  coach, sendMessage, tg, webLink, webhookSecret, encryptKey, validateGeminiKey, validTz, fmtLocal,
+  sweepDueReminders, addReminder, getProfile, updateProfile, listReminders, cancelReminder, addKnowledge
+} from './_core.js';
+import { upsertUser, getReminder, LIMITS } from './_store.js';
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-import { getProfile, setProfileFields, getHistory, appendHistory, registerUser } from './_store.js';
-
-const VOVO_SYSTEM_INSTRUCTION = `You are Vovo, an uncompromising, empathetic, and hyper-focused personal AI life coach.
-
-CORE DIRECTIVES:
-1. Speak directly, concisely, and punchily (1-4 short sentences per message).
-2. NEVER do the work for the user. Give them clear, actionable steps and demand execution.
-3. Call out fluff, excuses, and procrastination immediately.
-4. Reference the user's specific stored goals and daily schedule to keep them accountable.
-5. End most responses with a clear deadline question (e.g., "Will this be done by 3 PM? Yes or No?").
-6. Keep formatting clean using Telegram Markdown formatting.`;
+const HELP =
+  "🔥 *I am Vovo.* I'm not here to hold your hand; I'm here to make sure you do what you said you'd do.\n\n" +
+  "Just talk to me. Say *\"I'll work out at 4\"* and I'll text you at 4.\n\n" +
+  "*Commands*\n" +
+  "/goals [your goals] — lock in goals\n" +
+  "/schedule [routine] — your daily routine\n" +
+  "/know [fact] — teach me about you\n" +
+  "/reminders — see & cancel reminders\n" +
+  "/web — open your Vovo web app\n" +
+  "/key [AIza...] — use your own free Gemini key\n" +
+  "/timezone [Area/City] — e.g. /timezone Asia/Jerusalem\n" +
+  "/status — accountability check";
 
 export default async function handler(req, res) {
-  if (req.method !== 'POST') {
-    return res.status(200).send('Vovo Engine Online.');
+  if (req.method !== 'POST') return res.status(200).send('Vovo Engine Online.');
+  if (process.env.WEB_SECRET && req.headers['x-telegram-bot-api-secret-token'] !== webhookSecret()) {
+    return res.status(401).send('Unauthorized');
   }
-
-  const { message, callback_query } = req.body;
-
-  if (callback_query) {
-    return handleCallback(callback_query, res);
-  }
-
-  if (!message || !message.text) {
-    return res.status(200).send('OK');
-  }
-
-  const chatId = message.chat.id;
-  const userText = message.text.trim();
-  const userId = message.from.id.toString();
-
+  const { message, callback_query } = req.body || {};
   try {
-    
-    const [profile, rawHistory] = await Promise.all([
-      getProfile(userId),
-      getHistory(userId, 10)
-    ]);
-
-    if (!profile || profile.chatId !== chatId.toString()) {
-      await Promise.all([
-        setProfileFields(userId, { chatId: chatId.toString(), name: message.from.first_name || 'Champ' }),
-        registerUser(userId)
-      ]);
-    }
-
-    if (userText.startsWith('/start')) {
-      await sendTelegramMessage(chatId,
-        "🔥 *I am Vovo.* I'm not here to hold your hand; I'm here to ensure you do what you said you would do.\n\n" +
-        "Let's get started:\n" +
-        "1. Send `/goals [Your main goals]`\n" +
-        "2. Send `/schedule [Your key daily routine times]`\n" +
-        "3. Send `/status` anytime to check in."
-      );
-      return res.status(200).json({ ok: true });
-    }
-
-    if (userText.startsWith('/goals')) {
-      const goalsText = userText.replace('/goals', '').trim();
-      if (!goalsText) {
-        const currentGoals = profile?.goals || "No goals set yet!";
-        await sendTelegramMessage(chatId, `🎯 *Your Stored Goals:*\n${currentGoals}\n\nTo update, send:\n\`/goals 1. Hit gym 4x/wk 2. Finish project by Friday\``);
-      } else {
-        await setProfileFields(userId, { goals: goalsText });
-        await sendTelegramMessage(chatId, `✅ *Goals Locked In:*\n"${goalsText}"\n\nNo excuses now. I will hold you to this.`);
-      }
-      return res.status(200).json({ ok: true });
-    }
-
-    if (userText.startsWith('/schedule')) {
-      const schedText = userText.replace('/schedule', '').trim();
-      if (!schedText) {
-        const currentSched = profile?.schedule || "No schedule set yet!";
-        await sendTelegramMessage(chatId, `📅 *Your Daily Schedule:*\n${currentSched}\n\nTo update, send:\n\`/schedule 07:00 Morning Workout | 09:00 Deep Work | 22:00 Sleep\``);
-      } else {
-        await setProfileFields(userId, { schedule: schedText });
-        await sendTelegramMessage(chatId, `⏱️ *Schedule Saved.* I will hold you accountable to these time slots.`);
-      }
-      return res.status(200).json({ ok: true });
-    }
-
-    if (userText.startsWith('/status')) {
-      await sendAccountabilityCheck(chatId, profile?.goals || "Your targets");
-      return res.status(200).json({ ok: true });
-    }
-
-    const userProfileText = `User Name: ${profile?.name || 'Champ'}\nGoals: ${profile?.goals || 'Not set'}\nSchedule: ${profile?.schedule || 'Not set'}`;
-
-    const formattedHistory = rawHistory
-      .map(entry => `${entry.role === 'user' ? 'User' : 'Vovo'}: ${entry.text}`)
-      .join('\n');
-
-    const model = genAI.getGenerativeModel({
-      model: process.env.GEMINI_MODEL || 'gemini-3.5-flash-lite',
-      systemInstruction: `${VOVO_SYSTEM_INSTRUCTION}\n\n=== USER PROFILE ===\n${userProfileText}`
-    });
-
-    const promptContext = formattedHistory
-      ? `=== RECENT CHAT HISTORY ===\n${formattedHistory}\n\nUser: ${userText}`
-      : userText;
-
-    const result = await model.generateContent(promptContext);
-    const vovoReply = result.response.text();
-
-    await Promise.all([
-      sendTelegramMessage(chatId, vovoReply),
-      appendHistory(userId, [{ role: 'user', text: userText }, { role: 'vovo', text: vovoReply }])
-    ]);
-
-    return res.status(200).json({ ok: true });
+    if (callback_query) await handleCallback(callback_query);
+    else if (message?.text) await handleMessage(message);
   } catch (error) {
     console.error('Vovo Processing Error:', error);
-    try { await sendTelegramMessage(chatId, "⚠️ I glitched for a second — send that again."); } catch (e) { console.error('Fallback send failed:', e); }
-    return res.status(200).json({ ok: false });
+    const chatId = message?.chat?.id || callback_query?.message?.chat?.id;
+    if (chatId) await sendMessage(chatId, '⚠️ I glitched for a second — send that again.').catch(() => {});
   }
-}
-
-async function handleCallback(query, res) {
-  const chatId = query.message.chat.id;
-  const action = query.data;
-
-  let replyText = "";
-  if (action === 'status_done') {
-    replyText = "🔥 **Boom!** Action taken, excuses eliminated. What's the next task?";
-  } else if (action === 'status_late') {
-    replyText = "⏰ **Clock is ticking.** Stop overthinking. Give me 10 focused minutes right now.";
-  } else if (action === 'status_slacking') {
-    replyText = "❌ **Unacceptable.** Close the extra tabs, put your phone face down, and start NOW.";
-  }
-
-  await fetch(`https://api.telegram.org/bot${process.env.TELEGRAM_TOKEN}/sendMessage`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ chat_id: chatId, text: replyText, parse_mode: 'Markdown' })
-  });
-
+  sweepDueReminders().catch((e) => console.error('sweep', e.message));
   return res.status(200).json({ ok: true });
 }
 
-async function sendTelegramMessage(chatId, text) {
-  const r = await fetch(`https://api.telegram.org/bot${process.env.TELEGRAM_TOKEN}/sendMessage`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      chat_id: chatId,
-      text: text,
-      parse_mode: 'Markdown'
-    })
-  });
-  if (!r.ok) {
-    console.error('Markdown send failed, retrying plain:', await r.text());
-    await fetch(`https://api.telegram.org/bot${process.env.TELEGRAM_TOKEN}/sendMessage`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ chat_id: chatId, text: text })
-    });
+async function handleMessage(message) {
+  const chatId = message.chat.id;
+  const userId = String(message.from.id);
+  const text = message.text.trim();
+  await upsertUser(userId, { name: message.from.first_name || 'Champ', chatId: String(chatId) });
+  const [cmd, ...rest] = text.split(/\s+/);
+  const arg = text.slice(cmd.length).trim();
+  const command = cmd.startsWith('/') ? cmd.split('@')[0].toLowerCase() : null;
+
+  switch (command) {
+    case '/start':
+    case '/help':
+      if (arg === 'web') return sendWebLink(chatId, userId);
+      return sendMessage(chatId, HELP);
+    case '/web':
+    case '/app':
+      return sendWebLink(chatId, userId);
+    case '/goals': {
+      if (!arg) {
+        const p = await getProfile(userId);
+        return sendMessage(chatId, `🎯 *Your goals:*\n${p?.goals || 'None yet.'}\n\nUpdate: \`/goals Gym 4x/wk · Ship the site by Friday\``);
+      }
+      await updateProfile(userId, { goals: arg.slice(0, 600) });
+      return sendMessage(chatId, `✅ *Goals locked in:*\n"${arg.slice(0, 600)}"\n\nNo excuses now. I will hold you to this.`);
+    }
+    case '/schedule': {
+      if (!arg) {
+        const p = await getProfile(userId);
+        return sendMessage(chatId, `📅 *Your routine:*\n${p?.schedule || 'None yet.'}\n\nUpdate: \`/schedule 06:00 Wake | 09:00 Classes | 18:00 Build\``);
+      }
+      await updateProfile(userId, { schedule: arg.slice(0, 600) });
+      return sendMessage(chatId, '⏱️ *Routine saved.* Tell me which ones you want pinged and I\'ll set daily reminders.');
+    }
+    case '/know': {
+      if (!arg) return sendMessage(chatId, 'Teach me something about you: `/know I\'m vegan and start classes at 9`');
+      const r = await addKnowledge(userId, [arg]);
+      return sendMessage(chatId, r.added.length ? `🧠 Noted. I know ${r.list.length}/${LIMITS.knowledgeItems} things about you.` : r.full ? `🧠 Knowledge is full (${LIMITS.knowledgeItems}). Delete some in /web.` : '🧠 Already knew that.');
+    }
+    case '/knowledge': {
+      const p = await getProfile(userId);
+      const list = (p?.knowledge || []).map((k, i) => `${i + 1}. ${k.text}`).join('\n');
+      return sendMessage(chatId, list ? `🧠 *What I know about you:*\n${list}\n\nEdit it in /web` : 'I don\'t know anything about you yet. Use `/know ...`');
+    }
+    case '/reminders': {
+      const p = await getProfile(userId);
+      const rems = await listReminders(userId);
+      if (!rems.length) return sendMessage(chatId, 'No active reminders. Say something like "I\'ll go to the gym at 5" and I\'ll set one.');
+      return sendMessage(chatId, '⏰ *Active reminders* — tap to cancel:', {
+        reply_markup: { inline_keyboard: rems.slice(0, 20).map((r) => [{ text: `✖ ${fmtLocal(r.dueAt, p.timezone)}${r.repeat === 'daily' ? ' ↻' : ''} · ${r.text}`.slice(0, 60), callback_data: `rem_cancel:${r.id}` }]) }
+      });
+    }
+    case '/key': {
+      await tg('deleteMessage', { chat_id: chatId, message_id: message.message_id });
+      if (!arg) return sendMessage(chatId, 'Send `/key AIza...` with your free Gemini key (get one at aistudio.google.com → Get API key). I delete the message right away.');
+      if (arg.toLowerCase() === 'remove') { await updateProfile(userId, { geminiKeyEnc: null }); return sendMessage(chatId, '🔑 Key removed.'); }
+      if (!(await validateGeminiKey(arg))) return sendMessage(chatId, '❌ That key didn\'t work. Copy it again from aistudio.google.com → Get API key.');
+      await updateProfile(userId, { geminiKeyEnc: encryptKey(arg) });
+      return sendMessage(chatId, '🔑 *Key connected* (encrypted, message deleted). Vovo now runs on your own free Gemini key.');
+    }
+    case '/timezone': {
+      if (!arg || !validTz(arg)) return sendMessage(chatId, 'Send a valid timezone, e.g. `/timezone Asia/Jerusalem` or `/timezone America/New_York`');
+      await updateProfile(userId, { timezone: arg });
+      return sendMessage(chatId, `🌍 Timezone set to *${arg}*.`);
+    }
+    case '/status': {
+      const p = await getProfile(userId);
+      return sendMessage(chatId, `⚡ *ACCOUNTABILITY CHECK*\n\nGoals: *${p?.goals || 'Your targets'}*\n\nDid you complete your primary objective for this time block?`, {
+        reply_markup: { inline_keyboard: [[
+          { text: '✅ Done', callback_data: 'status_done' },
+          { text: '⏳ Need 10 Mins', callback_data: 'status_late' },
+          { text: '❌ Slacking', callback_data: 'status_slacking' }
+        ]] }
+      });
+    }
   }
+
+  await tg('sendChatAction', { chat_id: chatId, action: 'typing' });
+  const { reply } = await coach(userId, text, 'telegram');
+  await sendMessage(chatId, reply);
 }
 
-async function sendAccountabilityCheck(chatId, goals) {
-  await fetch(`https://api.telegram.org/bot${process.env.TELEGRAM_TOKEN}/sendMessage`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      chat_id: chatId,
-      text: `⚡ **ACCOUNTABILITY CHECK**\n\nGoals: *${goals}*\n\nDid you complete your primary objective for this time block?`,
-      parse_mode: 'Markdown',
-      reply_markup: {
-        inline_keyboard: [
-          [
-            { text: "✅ Done", callback_data: "status_done" },
-            { text: "⏳ Need 10 Mins", callback_data: "status_late" },
-            { text: "❌ Slacking", callback_data: "status_slacking" }
-          ]
-        ]
-      }
-    })
+function sendWebLink(chatId, userId) {
+  return sendMessage(chatId, '🖥️ *Your private Vovo web app* — chat, reminders and knowledge, synced with this chat. Don\'t share this link.', {
+    reply_markup: { inline_keyboard: [[{ text: 'Open Vovo web app', url: webLink(userId) }]] }
   });
+}
+
+const STATUS_REPLIES = {
+  status_done: "🔥 *Boom!* Action taken, excuses eliminated. What's the next task?",
+  status_late: '⏰ *Clock is ticking.* Stop overthinking. Give me 10 focused minutes right now.',
+  status_slacking: '❌ *Unacceptable.* Close the extra tabs, put your phone face down, and start NOW.'
+};
+
+async function handleCallback(q) {
+  const chatId = q.message.chat.id;
+  const userId = String(q.from.id);
+  const [action, idStr] = String(q.data || '').split(':');
+  const id = Number(idStr);
+  await tg('answerCallbackQuery', { callback_query_id: q.id });
+
+  if (STATUS_REPLIES[action]) return sendMessage(chatId, STATUS_REPLIES[action]);
+  if (action === 'rem_done') return sendMessage(chatId, '🔥 That\'s execution. Report back when it\'s done.');
+  if (action === 'rem_skip') return sendMessage(chatId, '❌ Skipping is a decision. What\'s the real reason — and when are you making it up?');
+  if (action === 'rem_snooze') {
+    const rem = await getReminder(id);
+    const p = await getProfile(userId);
+    if (!rem || rem.userId !== userId || !p) return;
+    await addReminder(p, { dueAt: new Date(Date.now() + 10 * 60000), text: rem.text, repeat: 'none' });
+    return sendMessage(chatId, '⏳ 10 minutes. Not 11. I\'ll be back.');
+  }
+  if (action === 'rem_cancel') {
+    const ok = await cancelReminder(userId, id);
+    return sendMessage(chatId, ok ? '🗑️ Reminder cancelled.' : 'That reminder is already gone.');
+  }
 }
