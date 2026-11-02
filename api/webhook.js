@@ -112,7 +112,8 @@ export default async function handler(req, res) {
     return res.status(200).json({ ok: true });
   } catch (error) {
     console.error('Vovo Processing Error:', error);
-    return res.status(500).json({ error: error.message });
+    try { await sendTelegramMessage(chatId, "⚠️ I glitched for a second — send that again."); } catch (e) { console.error('Fallback send failed:', e); }
+    return res.status(200).json({ ok: false });
   }
 }
 
@@ -139,7 +140,7 @@ async function handleCallback(query, res) {
 }
 
 async function sendTelegramMessage(chatId, text) {
-  await fetch(`https://api.telegram.org/bot${process.env.TELEGRAM_TOKEN}/sendMessage`, {
+  const r = await fetch(`https://api.telegram.org/bot${process.env.TELEGRAM_TOKEN}/sendMessage`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
@@ -148,6 +149,14 @@ async function sendTelegramMessage(chatId, text) {
       parse_mode: 'Markdown'
     })
   });
+  if (!r.ok) {
+    console.error('Markdown send failed, retrying plain:', await r.text());
+    await fetch(`https://api.telegram.org/bot${process.env.TELEGRAM_TOKEN}/sendMessage`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ chat_id: chatId, text: text })
+    });
+  }
 }
 
 async function sendAccountabilityCheck(chatId, goals) {
