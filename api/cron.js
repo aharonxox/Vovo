@@ -1,6 +1,4 @@
-import { Redis } from '@upstash/redis';
-
-const redis = Redis.fromEnv();
+import { allUserProfiles } from './_store.js';
 
 export default async function handler(req, res) {
   const authHeader = req.headers.authorization;
@@ -9,11 +7,9 @@ export default async function handler(req, res) {
   }
 
   try {
-    const userKeys = await redis.keys('vovo:user:*:profile');
+    const profiles = await allUserProfiles();
 
-    for (const key of userKeys) {
-      const profile = await redis.hgetall(key);
-
+    for (const profile of profiles) {
       if (profile && profile.chatId) {
         await fetch(`https://api.telegram.org/bot${process.env.TELEGRAM_TOKEN}/sendMessage`, {
           method: 'POST',
@@ -36,7 +32,7 @@ export default async function handler(req, res) {
       }
     }
 
-    return res.status(200).json({ success: true, processed: userKeys.length });
+    return res.status(200).json({ success: true, processed: profiles.length });
   } catch (error) {
     console.error('Cron Execution Error:', error);
     return res.status(500).json({ error: error.message });

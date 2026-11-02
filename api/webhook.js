@@ -1,8 +1,7 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import { Redis } from '@upstash/redis';
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-const redis = Redis.fromEnv();
+import { getProfile, setProfileFields, getHistory, appendHistory, registerUser } from './_store.js';
 
 const VOVO_SYSTEM_INSTRUCTION = `You are Vovo, an uncompromising, empathetic, and hyper-focused personal AI life coach.
 
@@ -34,16 +33,17 @@ export default async function handler(req, res) {
   const userId = message.from.id.toString();
 
   try {
-    const profileKey = `vovo:user:${userId}:profile`;
-    const historyKey = `vovo:user:${userId}:history`;
-
+    
     const [profile, rawHistory] = await Promise.all([
-      redis.hgetall(profileKey),
-      redis.lrange(historyKey, -10, -1)
+      getProfile(userId),
+      getHistory(userId, 10)
     ]);
 
     if (!profile || profile.chatId !== chatId.toString()) {
-      await redis.hset(profileKey, { chatId: chatId.toString(), name: message.from.first_name || 'Champ' });
+      await Promise.all([
+        setProfileFields(userId, { chatId: chatId.toString(), name: message.from.first_name || 'Champ' }),
+        registerUser(userId)
+      ]);
     }
 
     if (userText.startsWith('/start')) {
@@ -63,7 +63,7 @@ export default async function handler(req, res) {
         const currentGoals = profile?.goals || "No goals set yet!";
         await sendTelegramMessage(chatId, `🎯 *Your Stored Goals:*\n${currentGoals}\n\nTo update, send:\n\`/goals 1. Hit gym 4x/wk 2. Finish project by Friday\``);
       } else {
-        await redis.hset(profileKey, { goals: goalsText });
+        await setProfileFields(userId, { goals: goalsText });
         await sendTelegramMessage(chatId, `✅ *Goals Locked In:*\n"${goalsText}"\n\nNo excuses now. I will hold you to this.`);
       }
       return res.status(200).json({ ok: true });
@@ -75,7 +75,7 @@ export default async function handler(req, res) {
         const currentSched = profile?.schedule || "No schedule set yet!";
         await sendTelegramMessage(chatId, `📅 *Your Daily Schedule:*\n${currentSched}\n\nTo update, send:\n\`/schedule 07:00 Morning Workout | 09:00 Deep Work | 22:00 Sleep\``);
       } else {
-        await redis.hset(profileKey, { schedule: schedText });
+        await setProfileFields(userId, { schedule: schedText });
         await sendTelegramMessage(chatId, `⏱️ *Schedule Saved.* I will hold you accountable to these time slots.`);
       }
       return res.status(200).json({ ok: true });
@@ -88,10 +88,9 @@ export default async function handler(req, res) {
 
     const userProfileText = `User Name: ${profile?.name || 'Champ'}\nGoals: ${profile?.goals || 'Not set'}\nSchedule: ${profile?.schedule || 'Not set'}`;
 
-    const formattedHistory = rawHistory.map(item => {
-      const entry = typeof item === 'string' ? JSON.parse(item) : item;
-      return `${entry.role === 'user' ? 'User' : 'Vovo'}: ${entry.text}`;
-    }).join('\n');
+    const formattedHistory = rawHistory
+      .map(entry => `${entry.role === 'user' ? 'User' : 'Vovo'}: ${entry.text}`)
+      .join('\n');
 
     const model = genAI.getGenerativeModel({
       model: process.env.GEMINI_MODEL || 'gemini-2.0-flash',
@@ -107,9 +106,7 @@ export default async function handler(req, res) {
 
     await Promise.all([
       sendTelegramMessage(chatId, vovoReply),
-      redis.rpush(historyKey, JSON.stringify({ role: 'user', text: userText })),
-      redis.rpush(historyKey, JSON.stringify({ role: 'vovo', text: vovoReply })),
-      redis.ltrim(historyKey, -20, -1)
+      appendHistory(userId, [{ role: 'user', text: userText }, { role: 'vovo', text: vovoReply }])
     ]);
 
     return res.status(200).json({ ok: true });
