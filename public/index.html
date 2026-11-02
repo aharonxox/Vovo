@@ -24,10 +24,14 @@ tailwind.config = {
         body: ['Inter', 'sans-serif'],
       },
       colors: {
-        vovo: {
-          50: '#F0EDFF', 100: '#E0D9FF', 200: '#C4B4FF', 300: '#A78BFA',
-          400: '#8B5CF6', 500: '#7C3AED', 600: '#6D28D9', 700: '#5B21B6',
-          800: '#4C1D95', 900: '#2E1065',
+        pine: {
+          50: '#F0F7F1', 100: '#DBEDE0', 200: '#BCDCC6', 300: '#8FC3A1',
+          400: '#5DA477', 500: '#38875A', 600: '#276B46', 700: '#1B5E3B',
+          800: '#14532D', 900: '#0F3D22', 950: '#082615',
+        },
+        candle: {
+          100: '#FBF3DF', 200: '#F6E7BF', 300: '#EDD49A',
+          400: '#E3C06E', 500: '#D9A94A', 600: '#B98A33',
         }
       }
     }
@@ -35,40 +39,34 @@ tailwind.config = {
 }
 </script>
 <style>
-  :root { --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E"); }
-  body { background: #0A0A0F; color: #E7E7EE; font-family: Inter, sans-serif; overflow-x: hidden; }
+  body { background: #FBFCF9; color: #1C2B21; font-family: Inter, sans-serif; overflow-x: hidden; }
   .font-heading { font-family: "Plus Jakarta Sans", sans-serif; letter-spacing: -0.03em; }
-  .grain::before { content: ""; position: fixed; inset: 0; background-image: var(--grain); pointer-events: none; z-index: 50; opacity: .6; }
   .mesh {
     position: absolute; inset: 0; overflow: hidden; z-index: 0;
     background:
-      radial-gradient(ellipse 60% 50% at 20% 10%, rgba(124,58,237,.28), transparent 65%),
-      radial-gradient(ellipse 50% 40% at 85% 25%, rgba(56,189,248,.14), transparent 60%),
-      radial-gradient(ellipse 55% 55% at 60% 90%, rgba(167,139,250,.16), transparent 65%);
+      radial-gradient(ellipse 55% 45% at 18% 8%, rgba(27,94,59,.09), transparent 65%),
+      radial-gradient(ellipse 45% 40% at 88% 20%, rgba(217,169,74,.10), transparent 60%),
+      radial-gradient(ellipse 50% 50% at 60% 95%, rgba(143,195,161,.12), transparent 65%);
   }
-  .glass {
-    background: rgba(255,255,255,.04);
-    backdrop-filter: blur(16px);
-    border: 1px solid rgba(255,255,255,.08);
+  .card {
+    background: #FFFFFF;
+    border: 1px solid #E6EDE6;
+    box-shadow: 0 1px 2px rgba(16,61,34,.04), 0 4px 12px -2px rgba(16,61,34,.05);
   }
-  .glass-strong {
-    background: rgba(255,255,255,.06);
-    backdrop-filter: blur(24px);
-    border: 1px solid rgba(255,255,255,.1);
-  }
-  .cta-glow { box-shadow: 0 0 40px -8px rgba(139,92,246,.6), 0 4px 16px rgba(0,0,0,.4); transition: transform .2s ease, box-shadow .2s ease; }
-  .cta-glow:hover { transform: scale(1.03); box-shadow: 0 0 60px -6px rgba(139,92,246,.8), 0 6px 24px rgba(0,0,0,.5); }
-  .reveal { opacity: 0; transform: translateY(28px); transition: opacity .6s ease, transform .6s cubic-bezier(.4,0,.2,1); }
-  .reveal.visible { opacity: 1; transform: translateY(0); }
   .card-hover { transition: transform .3s cubic-bezier(.4,0,.2,1), box-shadow .3s ease, border-color .3s ease; }
-  .card-hover:hover { transform: translateY(-5px); border-color: rgba(167,139,250,.35); box-shadow: 0 20px 50px -12px rgba(124,58,237,.25); }
+  .card-hover:hover { transform: translateY(-4px); border-color: #BCDCC6; box-shadow: 0 16px 40px -12px rgba(16,61,34,.14); }
+  .cta { transition: transform .2s ease, box-shadow .2s ease, background .2s ease; box-shadow: 0 4px 14px -2px rgba(20,83,45,.35); }
+  .cta:hover { transform: scale(1.02); box-shadow: 0 8px 24px -4px rgba(20,83,45,.45); }
+  .reveal { opacity: 0; transform: translateY(24px); transition: opacity .6s ease, transform .6s cubic-bezier(.4,0,.2,1); }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
   .chat-bubble { animation: bubbleIn .5s cubic-bezier(.34,1.56,.64,1) both; }
   @keyframes bubbleIn { from { opacity:0; transform: translateY(14px) scale(.96); } to { opacity:1; transform: translateY(0) scale(1); } }
   .float-anim { animation: floaty 7s ease-in-out infinite; }
   @keyframes floaty { 0%,100% { transform: translateY(0) rotate(-1deg); } 50% { transform: translateY(-14px) rotate(-1deg); } }
-  .typing span { width:6px; height:6px; border-radius:50%; background:#A78BFA; display:inline-block; animation:blink 1.2s infinite; }
+  .typing span { width:6px; height:6px; border-radius:50%; background:#1B5E3B; display:inline-block; animation:blink 1.2s infinite; }
   .typing span:nth-child(2){ animation-delay:.2s } .typing span:nth-child(3){ animation-delay:.4s }
   @keyframes blink { 0%,80%,100%{opacity:.25} 40%{opacity:1} }
+  .gold-underline { background-image: linear-gradient(transparent 62%, #EDD49A 62%, #EDD49A 92%, transparent 92%); }
   #signin-modal { transition: opacity .25s ease; }
   #signin-modal.hidden-modal { opacity: 0; pointer-events: none; }
   #signin-modal .modal-card { transform: translateY(12px) scale(.98); transition: transform .25s cubic-bezier(.4,0,.2,1); }
@@ -76,25 +74,25 @@ tailwind.config = {
   @media (prefers-reduced-motion: reduce) { .reveal{transition:none;opacity:1;transform:none} .float-anim,.chat-bubble{animation:none} }
 </style>
 </head>
-<body class="grain font-body antialiased">
+<body class="font-body antialiased text-[#1C2B21]">
 
 <!-- NAV -->
-<header class="fixed top-0 inset-x-0 z-40 glass border-b border-white/5">
+<header class="fixed top-0 inset-x-0 z-40 bg-white/80 backdrop-blur-md border-b border-[#E6EDE6]">
   <nav class="max-w-6xl mx-auto flex items-center justify-between px-6 h-16">
-    <a href="#" class="flex items-center gap-2.5 font-heading font-extrabold text-xl tracking-tight">
+    <a href="#" class="flex items-center gap-2.5 font-heading font-extrabold text-xl tracking-tight text-pine-800">
       <img src="/brand/vovo-mark.png" alt="Vovo logo" class="w-9 h-9 rounded-xl">
       Vovo
     </a>
-    <div class="hidden md:flex items-center gap-8 text-sm text-white/60">
-      <a href="#how" class="hover:text-white transition-colors">How it works</a>
-      <a href="#features" class="hover:text-white transition-colors">Features</a>
-      <a href="#pricing" class="hover:text-white transition-colors">Pricing</a>
-      <a href="#coming-soon" class="hover:text-white transition-colors">Coming soon</a>
+    <div class="hidden md:flex items-center gap-8 text-sm text-[#5A6B5E]">
+      <a href="#how" class="hover:text-pine-800 transition-colors">How it works</a>
+      <a href="#features" class="hover:text-pine-800 transition-colors">Features</a>
+      <a href="#pricing" class="hover:text-pine-800 transition-colors">Pricing</a>
+      <a href="#coming-soon" class="hover:text-pine-800 transition-colors">Coming soon</a>
     </div>
     <div class="flex items-center gap-3">
-      <button onclick="openSignin()" class="text-sm text-white/70 hover:text-white font-medium px-4 py-2.5 transition-colors">Sign in</button>
+      <button onclick="openSignin()" class="text-sm text-[#5A6B5E] hover:text-pine-800 font-medium px-4 py-2.5 transition-colors">Sign in</button>
       <a href="https://buy.stripe.com/14AfZh4VyeBg98wa8IaR200" target="_blank" rel="noopener"
-         class="cta-glow bg-vovo-500 hover:bg-vovo-400 text-white font-semibold text-sm px-5 py-2.5 rounded-xl">
+         class="cta bg-pine-800 hover:bg-pine-700 text-white font-semibold text-sm px-5 py-2.5 rounded-xl">
         Get Vovo — $5/mo
       </a>
     </div>
@@ -106,63 +104,63 @@ tailwind.config = {
   <div class="mesh"></div>
   <div class="relative z-10 max-w-6xl mx-auto px-6 grid lg:grid-cols-2 gap-16 items-center">
     <div>
-      <div class="reveal inline-flex items-center gap-2 glass rounded-full px-4 py-1.5 text-xs font-medium text-vovo-300 mb-8">
+      <div class="reveal inline-flex items-center gap-2 bg-pine-50 border border-pine-200 rounded-full px-4 py-1.5 text-xs font-medium text-pine-700 mb-8">
         <i data-lucide="zap" class="w-3.5 h-3.5"></i> Proactive · Persistent · On Telegram
       </div>
-      <h1 class="reveal font-heading font-extrabold text-[clamp(2.75rem,6vw,4.75rem)] leading-[1.05] text-white" style="transition-delay:.05s">
+      <h1 class="reveal font-heading font-extrabold text-[clamp(2.75rem,6vw,4.75rem)] leading-[1.05] text-pine-950" style="transition-delay:.05s">
         A coach that<br>
-        <span class="bg-gradient-to-r from-vovo-300 via-vovo-400 to-sky-300 bg-clip-text text-transparent">won't let you off the hook.</span>
+        <span class="gold-underline">won't let you off</span><br>the hook.
       </h1>
-      <p class="reveal mt-6 text-lg text-white/55 max-w-[34rem] leading-relaxed" style="transition-delay:.1s">
+      <p class="reveal mt-6 text-lg text-[#5A6B5E] max-w-[34rem] leading-relaxed" style="transition-delay:.1s">
         You set the goals. Vovo makes sure you hit them. It learns your schedule, messages <em>you</em> first, and calls out every excuse — right inside Telegram. $5 a month. No app to install.
       </p>
       <div class="reveal mt-10 flex flex-wrap items-center gap-4" style="transition-delay:.15s">
         <a href="https://buy.stripe.com/14AfZh4VyeBg98wa8IaR200" target="_blank" rel="noopener"
-           class="cta-glow inline-flex items-center gap-2 bg-vovo-500 hover:bg-vovo-400 text-white font-bold px-8 h-14 rounded-2xl text-base">
+           class="cta inline-flex items-center gap-2 bg-pine-800 hover:bg-pine-700 text-white font-bold px-8 h-14 rounded-2xl text-base">
           <i data-lucide="zap" class="w-5 h-5"></i> Start for $5/month
         </a>
-        <button onclick="openSignin()" class="inline-flex items-center gap-2 text-white/60 hover:text-white font-medium px-2 h-14 transition-colors">
+        <button onclick="openSignin()" class="inline-flex items-center gap-2 text-[#5A6B5E] hover:text-pine-800 font-medium px-2 h-14 transition-colors">
           Already a member? Sign in <i data-lucide="arrow-right" class="w-4 h-4"></i>
         </button>
       </div>
-      <div class="reveal mt-10 flex items-center gap-6 text-xs text-white/40" style="transition-delay:.2s">
-        <span class="flex items-center gap-1.5"><i data-lucide="check-circle-2" class="w-4 h-4 text-vovo-400"></i> No app install</span>
-        <span class="flex items-center gap-1.5"><i data-lucide="check-circle-2" class="w-4 h-4 text-vovo-400"></i> Cancel anytime</span>
-        <span class="flex items-center gap-1.5"><i data-lucide="check-circle-2" class="w-4 h-4 text-vovo-400"></i> Free AI key included</span>
+      <div class="reveal mt-10 flex items-center gap-6 text-xs text-[#7A8B7E]" style="transition-delay:.2s">
+        <span class="flex items-center gap-1.5"><i data-lucide="check-circle-2" class="w-4 h-4 text-pine-500"></i> No app install</span>
+        <span class="flex items-center gap-1.5"><i data-lucide="check-circle-2" class="w-4 h-4 text-pine-500"></i> Cancel anytime</span>
+        <span class="flex items-center gap-1.5"><i data-lucide="check-circle-2" class="w-4 h-4 text-pine-500"></i> Free AI key included</span>
       </div>
     </div>
 
     <!-- Phone mockup -->
     <div class="reveal relative mx-auto w-full max-w-[340px] float-anim" style="transition-delay:.15s">
-      <div class="absolute -inset-8 bg-vovo-500/20 blur-3xl rounded-full -z-10"></div>
-      <div class="glass-strong rounded-[2.5rem] p-3 shadow-2xl">
-        <div class="bg-[#0E0E16] rounded-[2rem] overflow-hidden">
-          <div class="flex items-center gap-3 px-5 py-4 border-b border-white/5">
+      <div class="absolute -inset-8 bg-pine-200/50 blur-3xl rounded-full -z-10"></div>
+      <div class="card rounded-[2.5rem] p-3 shadow-2xl">
+        <div class="bg-[#F4F7F2] rounded-[2rem] overflow-hidden border border-[#E6EDE6]">
+          <div class="flex items-center gap-3 px-5 py-4 border-b border-[#E6EDE6] bg-white">
             <img src="/brand/vovo-mark.png" alt="Vovo" class="w-9 h-9 rounded-full">
             <div>
-              <div class="text-sm font-semibold text-white">Vovo</div>
-              <div class="text-[11px] text-emerald-400 flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block"></span>online</div>
+              <div class="text-sm font-semibold text-pine-900">Vovo</div>
+              <div class="text-[11px] text-pine-500 flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-pine-500 inline-block"></span>online</div>
             </div>
           </div>
           <div class="px-4 py-5 space-y-3 text-[13px] leading-snug">
-            <div class="chat-bubble glass rounded-2xl rounded-tl-md px-4 py-3 max-w-[85%] text-white/90" style="animation-delay:.2s">
+            <div class="chat-bubble bg-white border border-[#E6EDE6] rounded-2xl rounded-tl-md px-4 py-3 max-w-[85%] text-[#33473A]" style="animation-delay:.2s">
               🔥 <b>I am Vovo.</b> I'm not here to hold your hand. What are we executing on today?
             </div>
-            <div class="chat-bubble bg-vovo-600/80 rounded-2xl rounded-tr-md px-4 py-3 max-w-[80%] ml-auto text-white" style="animation-delay:.8s">
+            <div class="chat-bubble bg-pine-800 rounded-2xl rounded-tr-md px-4 py-3 max-w-[80%] ml-auto text-white" style="animation-delay:.8s">
               /goals Ship the client site. Gym 4x this week.
             </div>
-            <div class="chat-bubble glass rounded-2xl rounded-tl-md px-4 py-3 max-w-[85%] text-white/90" style="animation-delay:1.4s">
+            <div class="chat-bubble bg-white border border-[#E6EDE6] rounded-2xl rounded-tl-md px-4 py-3 max-w-[85%] text-[#33473A]" style="animation-delay:1.4s">
               ✅ Goals locked in. No excuses now — I will hold you to this.
             </div>
-            <div class="chat-bubble glass rounded-2xl rounded-tl-md px-4 py-3 max-w-[85%] text-white/90" style="animation-delay:2.0s">
+            <div class="chat-bubble bg-candle-100 border border-candle-300 rounded-2xl rounded-tl-md px-4 py-3 max-w-[85%] text-[#4A3D1F]" style="animation-delay:2.0s">
               ⚡ <b>ACCOUNTABILITY CHECK</b><br>Did you finish your deep-work block?
               <div class="flex gap-2 mt-2.5">
-                <span class="text-[11px] px-2.5 py-1 rounded-lg bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">✅ Done</span>
-                <span class="text-[11px] px-2.5 py-1 rounded-lg bg-amber-500/20 text-amber-300 border border-amber-500/30">⏳ 10 min</span>
-                <span class="text-[11px] px-2.5 py-1 rounded-lg bg-red-500/20 text-red-300 border border-red-500/30">❌ Slacking</span>
+                <span class="text-[11px] px-2.5 py-1 rounded-lg bg-pine-100 text-pine-800 border border-pine-300">✅ Done</span>
+                <span class="text-[11px] px-2.5 py-1 rounded-lg bg-candle-200 text-candle-600 border border-candle-400">⏳ 10 min</span>
+                <span class="text-[11px] px-2.5 py-1 rounded-lg bg-red-50 text-red-600 border border-red-200">❌ Slacking</span>
               </div>
             </div>
-            <div class="chat-bubble typing glass rounded-2xl rounded-tl-md px-4 py-3 w-14 flex gap-1" style="animation-delay:2.6s">
+            <div class="chat-bubble typing bg-white border border-[#E6EDE6] rounded-2xl rounded-tl-md px-4 py-3 w-14 flex gap-1" style="animation-delay:2.6s">
               <span></span><span></span><span></span>
             </div>
           </div>
@@ -173,15 +171,15 @@ tailwind.config = {
 </section>
 
 <!-- PAIN / PITCH -->
-<section class="relative py-28 border-t border-white/5">
+<section class="relative py-28 border-t border-[#EAEFEA]">
   <div class="max-w-6xl mx-auto px-6 grid lg:grid-cols-2 gap-14 items-center">
     <div class="reveal">
-      <div class="text-xs font-semibold uppercase tracking-[0.1em] text-vovo-400 mb-4">The problem</div>
-      <h2 class="font-heading font-extrabold text-[clamp(2rem,4vw,3rem)] text-white leading-tight">Motivation dies by Tuesday.<br>Vovo doesn't.</h2>
+      <div class="text-xs font-semibold uppercase tracking-[0.1em] text-candle-600 mb-4">The problem</div>
+      <h2 class="font-heading font-extrabold text-[clamp(2rem,4vw,3rem)] text-pine-950 leading-tight">Motivation dies by Tuesday.<br>Vovo doesn't.</h2>
     </div>
-    <div class="reveal space-y-5 text-white/55 leading-relaxed" style="transition-delay:.1s">
+    <div class="reveal space-y-5 text-[#5A6B5E] leading-relaxed" style="transition-delay:.1s">
       <p>Every week starts the same way: big goals, real intentions — then life happens and nobody's watching. Notes apps don't nag you. To-do lists don't push back. Friends get tired of asking.</p>
-      <p class="text-white/80 font-medium">Vovo is the coach that never gets tired. It checks in on schedule, remembers what you promised, and gives you the push you actually need — for less than a coffee.</p>
+      <p class="text-pine-800 font-medium">Vovo is the coach that never gets tired. It checks in on schedule, remembers what you promised, and gives you the push you actually need — for less than a coffee.</p>
     </div>
   </div>
 </section>
@@ -190,87 +188,86 @@ tailwind.config = {
 <section id="how" class="relative py-28">
   <div class="max-w-6xl mx-auto px-6">
     <div class="reveal max-w-2xl">
-      <div class="text-xs font-semibold uppercase tracking-[0.1em] text-vovo-400 mb-4">How it works</div>
-      <h2 class="font-heading font-extrabold text-[clamp(2rem,4vw,3rem)] text-white leading-tight">Three commands. Zero excuses.</h2>
+      <div class="text-xs font-semibold uppercase tracking-[0.1em] text-candle-600 mb-4">How it works</div>
+      <h2 class="font-heading font-extrabold text-[clamp(2rem,4vw,3rem)] text-pine-950 leading-tight">Three commands. Zero excuses.</h2>
     </div>
     <div class="mt-14 grid md:grid-cols-3 gap-6">
-      <div class="reveal glass card-hover rounded-2xl p-8">
-        <div class="w-12 h-12 rounded-xl bg-vovo-500/15 border border-vovo-500/25 grid place-items-center mb-6"><i data-lucide="target" class="w-6 h-6 text-vovo-300"></i></div>
-        <div class="text-xs text-white/35 font-semibold mb-1">STEP 01</div>
-        <h3 class="font-heading font-bold text-xl text-white mb-3">Set your goals</h3>
-        <p class="text-sm text-white/55 leading-relaxed">Send <code class="text-vovo-300 bg-white/5 px-1.5 py-0.5 rounded">/goals</code> once. Vovo stores them permanently and references them in every conversation.</p>
+      <div class="reveal card card-hover rounded-2xl p-8">
+        <div class="w-12 h-12 rounded-xl bg-pine-50 border border-pine-200 grid place-items-center mb-6"><i data-lucide="target" class="w-6 h-6 text-pine-700"></i></div>
+        <div class="text-xs text-[#93A596] font-semibold mb-1">STEP 01</div>
+        <h3 class="font-heading font-bold text-xl text-pine-900 mb-3">Set your goals</h3>
+        <p class="text-sm text-[#5A6B5E] leading-relaxed">Send <code class="text-pine-700 bg-pine-50 px-1.5 py-0.5 rounded">/goals</code> once. Vovo stores them permanently and references them in every conversation.</p>
       </div>
-      <div class="reveal glass card-hover rounded-2xl p-8" style="transition-delay:.08s">
-        <div class="w-12 h-12 rounded-xl bg-vovo-500/15 border border-vovo-500/25 grid place-items-center mb-6"><i data-lucide="calendar-clock" class="w-6 h-6 text-vovo-300"></i></div>
-        <div class="text-xs text-white/35 font-semibold mb-1">STEP 02</div>
-        <h3 class="font-heading font-bold text-xl text-white mb-3">Lock your schedule</h3>
-        <p class="text-sm text-white/55 leading-relaxed">Send <code class="text-vovo-300 bg-white/5 px-1.5 py-0.5 rounded">/schedule</code> with your routine. Vovo knows exactly when you said you'd be working.</p>
+      <div class="reveal card card-hover rounded-2xl p-8" style="transition-delay:.08s">
+        <div class="w-12 h-12 rounded-xl bg-pine-50 border border-pine-200 grid place-items-center mb-6"><i data-lucide="calendar-clock" class="w-6 h-6 text-pine-700"></i></div>
+        <div class="text-xs text-[#93A596] font-semibold mb-1">STEP 02</div>
+        <h3 class="font-heading font-bold text-xl text-pine-900 mb-3">Lock your schedule</h3>
+        <p class="text-sm text-[#5A6B5E] leading-relaxed">Send <code class="text-pine-700 bg-pine-50 px-1.5 py-0.5 rounded">/schedule</code> with your routine. Vovo knows exactly when you said you'd be working.</p>
       </div>
-      <div class="reveal glass card-hover rounded-2xl p-8" style="transition-delay:.16s">
-        <div class="w-12 h-12 rounded-xl bg-vovo-500/15 border border-vovo-500/25 grid place-items-center mb-6"><i data-lucide="bell-ring" class="w-6 h-6 text-vovo-300"></i></div>
-        <div class="text-xs text-white/35 font-semibold mb-1">STEP 03</div>
-        <h3 class="font-heading font-bold text-xl text-white mb-3">Get audited</h3>
-        <p class="text-sm text-white/55 leading-relaxed">Vovo pings you every day with one-tap accountability buttons. Answer honestly — it remembers.</p>
+      <div class="reveal card card-hover rounded-2xl p-8" style="transition-delay:.16s">
+        <div class="w-12 h-12 rounded-xl bg-pine-50 border border-pine-200 grid place-items-center mb-6"><i data-lucide="bell-ring" class="w-6 h-6 text-pine-700"></i></div>
+        <div class="text-xs text-[#93A596] font-semibold mb-1">STEP 03</div>
+        <h3 class="font-heading font-bold text-xl text-pine-900 mb-3">Get audited</h3>
+        <p class="text-sm text-[#5A6B5E] leading-relaxed">Vovo pings you every day with one-tap accountability buttons. Answer honestly — it remembers.</p>
       </div>
     </div>
   </div>
 </section>
 
 <!-- FEATURES BENTO -->
-<section id="features" class="relative py-28">
-  <div class="mesh opacity-60"></div>
+<section id="features" class="relative py-28 bg-[#F4F8F3]">
   <div class="relative max-w-6xl mx-auto px-6">
     <div class="reveal max-w-2xl">
-      <div class="text-xs font-semibold uppercase tracking-[0.1em] text-vovo-400 mb-4">Why Vovo</div>
-      <h2 class="font-heading font-extrabold text-[clamp(2rem,4vw,3rem)] text-white leading-tight">Not a chatbot. A drill sergeant with empathy.</h2>
+      <div class="text-xs font-semibold uppercase tracking-[0.1em] text-candle-600 mb-4">Why Vovo</div>
+      <h2 class="font-heading font-extrabold text-[clamp(2rem,4vw,3rem)] text-pine-950 leading-tight">Not a chatbot. A drill sergeant with empathy.</h2>
     </div>
     <div class="mt-14 grid md:grid-cols-3 gap-6 auto-rows-[minmax(180px,auto)]">
-      <div class="reveal glass card-hover rounded-2xl p-8 md:col-span-2 flex flex-col justify-between">
+      <div class="reveal card card-hover rounded-2xl p-8 md:col-span-2 flex flex-col justify-between">
         <div>
-          <i data-lucide="brain" class="w-7 h-7 text-vovo-300 mb-5"></i>
-          <h3 class="font-heading font-bold text-2xl text-white mb-3">Real AI coaching, not canned quotes</h3>
-          <p class="text-white/55 leading-relaxed max-w-md">Vovo runs on Google Gemini — it reads your goals, your history, and your excuses, and answers like a coach who actually knows you.</p>
+          <i data-lucide="brain" class="w-7 h-7 text-pine-600 mb-5"></i>
+          <h3 class="font-heading font-bold text-2xl text-pine-900 mb-3">Real AI coaching, not canned quotes</h3>
+          <p class="text-[#5A6B5E] leading-relaxed max-w-md">Vovo runs on Google Gemini — it reads your goals, your history, and your excuses, and answers like a coach who actually knows you.</p>
         </div>
         <div class="mt-6 flex gap-2 flex-wrap">
-          <span class="text-xs px-3 py-1.5 rounded-full glass text-white/60">Remembers context</span>
-          <span class="text-xs px-3 py-1.5 rounded-full glass text-white/60">Instant replies</span>
-          <span class="text-xs px-3 py-1.5 rounded-full glass text-white/60">Your own free AI key</span>
+          <span class="text-xs px-3 py-1.5 rounded-full bg-pine-50 border border-pine-200 text-pine-700">Remembers context</span>
+          <span class="text-xs px-3 py-1.5 rounded-full bg-pine-50 border border-pine-200 text-pine-700">Instant replies</span>
+          <span class="text-xs px-3 py-1.5 rounded-full bg-candle-100 border border-candle-300 text-candle-600">Your own free AI key</span>
         </div>
       </div>
-      <div class="reveal glass card-hover rounded-2xl p-8" style="transition-delay:.08s">
-        <i data-lucide="alarm-clock" class="w-7 h-7 text-vovo-300 mb-5"></i>
-        <h3 class="font-heading font-bold text-xl text-white mb-3">It messages you first</h3>
-        <p class="text-sm text-white/55 leading-relaxed">Scheduled daily audits land in your Telegram whether you ask or not. You're not chasing a bot — it's chasing you.</p>
+      <div class="reveal card card-hover rounded-2xl p-8" style="transition-delay:.08s">
+        <i data-lucide="alarm-clock" class="w-7 h-7 text-pine-600 mb-5"></i>
+        <h3 class="font-heading font-bold text-xl text-pine-900 mb-3">It messages you first</h3>
+        <p class="text-sm text-[#5A6B5E] leading-relaxed">Scheduled daily audits land in your Telegram whether you ask or not. You're not chasing a bot — it's chasing you.</p>
       </div>
-      <div class="reveal glass card-hover rounded-2xl p-8" style="transition-delay:.12s">
-        <i data-lucide="database" class="w-7 h-7 text-vovo-300 mb-5"></i>
-        <h3 class="font-heading font-bold text-xl text-white mb-3">Long-term memory</h3>
-        <p class="text-sm text-white/55 leading-relaxed">Goals, schedules, and history persist. Close the app — Vovo doesn't forget what you promised.</p>
+      <div class="reveal card card-hover rounded-2xl p-8" style="transition-delay:.12s">
+        <i data-lucide="database" class="w-7 h-7 text-pine-600 mb-5"></i>
+        <h3 class="font-heading font-bold text-xl text-pine-900 mb-3">Long-term memory</h3>
+        <p class="text-sm text-[#5A6B5E] leading-relaxed">Goals, schedules, and history persist. Close the app — Vovo doesn't forget what you promised.</p>
       </div>
-      <div class="reveal glass card-hover rounded-2xl p-8 md:col-span-2 flex items-center gap-8" style="transition-delay:.16s">
+      <div class="reveal card card-hover rounded-2xl p-8 md:col-span-2 flex items-center gap-8" style="transition-delay:.16s">
         <div class="flex-1">
-          <i data-lucide="shield-off" class="w-7 h-7 text-vovo-300 mb-5"></i>
-          <h3 class="font-heading font-bold text-xl text-white mb-3">Excuses get called out</h3>
-          <p class="text-sm text-white/55 leading-relaxed">Vovo is engineered to kill procrastination on sight. Vague answers get pushed back — every time.</p>
+          <i data-lucide="shield-off" class="w-7 h-7 text-pine-600 mb-5"></i>
+          <h3 class="font-heading font-bold text-xl text-pine-900 mb-3">Excuses get called out</h3>
+          <p class="text-sm text-[#5A6B5E] leading-relaxed">Vovo is engineered to kill procrastination on sight. Vague answers get pushed back — every time.</p>
         </div>
-        <div class="hidden sm:block glass rounded-xl px-5 py-4 text-[13px] text-white/70 italic max-w-[220px]">
-          "That's not a reason, that's an excuse. You have 20 minutes — use 10 of them. Now."<span class="block mt-2 text-vovo-400 not-italic text-xs font-semibold">— Vovo</span>
+        <div class="hidden sm:block bg-candle-100 border border-candle-300 rounded-xl px-5 py-4 text-[13px] text-[#5A4A22] italic max-w-[220px]">
+          "That's not a reason, that's an excuse. You have 20 minutes — use 10 of them. Now."<span class="block mt-2 text-pine-700 not-italic text-xs font-semibold">— Vovo</span>
         </div>
       </div>
-      <div class="reveal glass card-hover rounded-2xl p-8" style="transition-delay:.2s">
-        <i data-lucide="smartphone" class="w-7 h-7 text-vovo-300 mb-5"></i>
-        <h3 class="font-heading font-bold text-xl text-white mb-3">Lives in Telegram</h3>
-        <p class="text-sm text-white/55 leading-relaxed">Every device, real push notifications, one-tap status buttons. Nothing new to download.</p>
+      <div class="reveal card card-hover rounded-2xl p-8" style="transition-delay:.2s">
+        <i data-lucide="smartphone" class="w-7 h-7 text-pine-600 mb-5"></i>
+        <h3 class="font-heading font-bold text-xl text-pine-900 mb-3">Lives in Telegram</h3>
+        <p class="text-sm text-[#5A6B5E] leading-relaxed">Every device, real push notifications, one-tap status buttons. Nothing new to download.</p>
       </div>
-      <div class="reveal glass card-hover rounded-2xl p-8" style="transition-delay:.24s">
-        <i data-lucide="key-round" class="w-7 h-7 text-vovo-300 mb-5"></i>
-        <h3 class="font-heading font-bold text-xl text-white mb-3">Free AI key included</h3>
-        <p class="text-sm text-white/55 leading-relaxed">Members get a guided walkthrough to grab their own free Google Gemini key — Vovo runs on <em>your</em> key, so it stays free.</p>
+      <div class="reveal card card-hover rounded-2xl p-8" style="transition-delay:.24s">
+        <i data-lucide="key-round" class="w-7 h-7 text-pine-600 mb-5"></i>
+        <h3 class="font-heading font-bold text-xl text-pine-900 mb-3">Free AI key included</h3>
+        <p class="text-sm text-[#5A6B5E] leading-relaxed">Members get a guided walkthrough to grab their own free Google Gemini key — Vovo runs on <em>your</em> key, so it stays free.</p>
       </div>
-      <div class="reveal glass card-hover rounded-2xl p-8" style="transition-delay:.28s">
-        <i data-lucide="heart-handshake" class="w-7 h-7 text-vovo-300 mb-5"></i>
-        <h3 class="font-heading font-bold text-xl text-white mb-3">Built to actually work</h3>
-        <p class="text-sm text-white/55 leading-relaxed">Made by someone who needed it. Small monthly fee keeps the engine running — cancel anytime.</p>
+      <div class="reveal card card-hover rounded-2xl p-8" style="transition-delay:.28s">
+        <i data-lucide="heart-handshake" class="w-7 h-7 text-pine-600 mb-5"></i>
+        <h3 class="font-heading font-bold text-xl text-pine-900 mb-3">Built to actually work</h3>
+        <p class="text-sm text-[#5A6B5E] leading-relaxed">Made by someone who needed it. Small monthly fee keeps the engine running — cancel anytime.</p>
       </div>
     </div>
   </div>
@@ -278,73 +275,71 @@ tailwind.config = {
 
 <!-- PRICING -->
 <section id="pricing" class="relative py-28">
-  <div class="max-w-6xl mx-auto px-6">
+  <div class="mesh"></div>
+  <div class="relative max-w-6xl mx-auto px-6">
     <div class="reveal max-w-2xl mx-auto text-center">
-      <div class="text-xs font-semibold uppercase tracking-[0.1em] text-vovo-400 mb-4">Pricing</div>
-      <h2 class="font-heading font-extrabold text-[clamp(2rem,4vw,3rem)] text-white leading-tight">One plan. Less than a coffee.</h2>
-      <p class="mt-4 text-white/55">Everything included. Cancel anytime.</p>
+      <div class="text-xs font-semibold uppercase tracking-[0.1em] text-candle-600 mb-4">Pricing</div>
+      <h2 class="font-heading font-extrabold text-[clamp(2rem,4vw,3rem)] text-pine-950 leading-tight">One plan. Less than a coffee.</h2>
+      <p class="mt-4 text-[#5A6B5E]">Everything included. Cancel anytime.</p>
     </div>
-    <div class="reveal mt-14 max-w-md mx-auto glass-strong card-hover rounded-3xl p-10 relative overflow-hidden" style="transition-delay:.1s">
-      <div class="absolute -top-20 -right-20 w-56 h-56 bg-vovo-500/25 blur-3xl rounded-full"></div>
-      <div class="relative">
-        <div class="flex items-center gap-3 mb-6">
-          <img src="/brand/vovo-mark.png" alt="" class="w-11 h-11 rounded-xl">
-          <span class="text-xs font-semibold uppercase tracking-[0.1em] text-vovo-300">Vovo Member</span>
-        </div>
-        <div class="flex items-end gap-2">
-          <span class="font-heading font-extrabold text-6xl text-white">$5</span>
-          <span class="text-white/45 mb-2">/month</span>
-        </div>
-        <ul class="mt-8 space-y-3.5 text-sm text-white/70">
-          <li class="flex items-start gap-3"><i data-lucide="check" class="w-4 h-4 mt-0.5 text-vovo-400 shrink-0"></i> Unlimited coaching chats on Telegram</li>
-          <li class="flex items-start gap-3"><i data-lucide="check" class="w-4 h-4 mt-0.5 text-vovo-400 shrink-0"></i> Daily proactive accountability check-ins</li>
-          <li class="flex items-start gap-3"><i data-lucide="check" class="w-4 h-4 mt-0.5 text-vovo-400 shrink-0"></i> Persistent goals, schedule & memory</li>
-          <li class="flex items-start gap-3"><i data-lucide="check" class="w-4 h-4 mt-0.5 text-vovo-400 shrink-0"></i> Guided setup — free Gemini key walkthrough</li>
-          <li class="flex items-start gap-3"><i data-lucide="check" class="w-4 h-4 mt-0.5 text-vovo-400 shrink-0"></i> Members area with every step screenshotted</li>
-        </ul>
-        <a href="https://buy.stripe.com/14AfZh4VyeBg98wa8IaR200" target="_blank" rel="noopener"
-           class="cta-glow mt-9 flex items-center justify-center gap-2 bg-vovo-500 hover:bg-vovo-400 text-white font-bold h-14 rounded-2xl text-base w-full">
-          <i data-lucide="lock" class="w-4 h-4"></i> Subscribe — $5/month
-        </a>
-        <p class="mt-4 text-center text-xs text-white/35">Secure checkout via Stripe. You'll get a members access code after payment.</p>
+    <div class="reveal mt-14 max-w-md mx-auto card rounded-3xl p-10 relative overflow-hidden border-t-4 border-t-candle-400" style="transition-delay:.1s">
+      <div class="flex items-center gap-3 mb-6">
+        <img src="/brand/vovo-mark.png" alt="" class="w-11 h-11 rounded-xl">
+        <span class="text-xs font-semibold uppercase tracking-[0.1em] text-candle-600">Vovo Member</span>
       </div>
+      <div class="flex items-end gap-2">
+        <span class="font-heading font-extrabold text-6xl text-pine-950">$5</span>
+        <span class="text-[#7A8B7E] mb-2">/month</span>
+      </div>
+      <ul class="mt-8 space-y-3.5 text-sm text-[#4B5E50]">
+        <li class="flex items-start gap-3"><i data-lucide="check" class="w-4 h-4 mt-0.5 text-pine-600 shrink-0"></i> Unlimited coaching chats on Telegram</li>
+        <li class="flex items-start gap-3"><i data-lucide="check" class="w-4 h-4 mt-0.5 text-pine-600 shrink-0"></i> Daily proactive accountability check-ins</li>
+        <li class="flex items-start gap-3"><i data-lucide="check" class="w-4 h-4 mt-0.5 text-pine-600 shrink-0"></i> Persistent goals, schedule & memory</li>
+        <li class="flex items-start gap-3"><i data-lucide="check" class="w-4 h-4 mt-0.5 text-pine-600 shrink-0"></i> Guided setup — free Gemini key walkthrough</li>
+        <li class="flex items-start gap-3"><i data-lucide="check" class="w-4 h-4 mt-0.5 text-pine-600 shrink-0"></i> Members area with every step screenshotted</li>
+      </ul>
+      <a href="https://buy.stripe.com/14AfZh4VyeBg98wa8IaR200" target="_blank" rel="noopener"
+         class="cta mt-9 flex items-center justify-center gap-2 bg-pine-800 hover:bg-pine-700 text-white font-bold h-14 rounded-2xl text-base w-full">
+        <i data-lucide="lock" class="w-4 h-4"></i> Subscribe — $5/month
+      </a>
+      <p class="mt-4 text-center text-xs text-[#93A596]">Secure checkout via Stripe. You'll get a members access code after payment.</p>
     </div>
-    <p class="reveal mt-8 text-center text-xs text-white/35" style="transition-delay:.15s">
-      Owner? <button onclick="openSignin()" class="text-vovo-300 hover:text-vovo-200 underline underline-offset-2">Sign in for free access</button>
+    <p class="reveal mt-8 text-center text-xs text-[#93A596]" style="transition-delay:.15s">
+      Owner? <button onclick="openSignin()" class="text-pine-700 hover:text-pine-800 underline underline-offset-2">Sign in for free access</button>
     </p>
   </div>
 </section>
 
 <!-- COMING SOON -->
-<section id="coming-soon" class="relative py-28 border-t border-white/5">
+<section id="coming-soon" class="relative py-28 border-t border-[#EAEFEA] bg-[#F4F8F3]">
   <div class="max-w-6xl mx-auto px-6">
     <div class="reveal max-w-2xl">
-      <div class="inline-flex items-center gap-2 glass rounded-full px-4 py-1.5 text-xs font-medium text-amber-300 mb-6">
+      <div class="inline-flex items-center gap-2 bg-candle-100 border border-candle-300 rounded-full px-4 py-1.5 text-xs font-medium text-candle-600 mb-6">
         <i data-lucide="sparkles" class="w-3.5 h-3.5"></i> Coming soon for members
       </div>
-      <h2 class="font-heading font-extrabold text-[clamp(2rem,4vw,3rem)] text-white leading-tight">Vovo is just getting started.</h2>
-      <p class="mt-4 text-white/55 max-w-xl leading-relaxed">Members get every upgrade free while it's being built. Here's what's already on the bench:</p>
+      <h2 class="font-heading font-extrabold text-[clamp(2rem,4vw,3rem)] text-pine-950 leading-tight">Vovo is just getting started.</h2>
+      <p class="mt-4 text-[#5A6B5E] max-w-xl leading-relaxed">Members get every upgrade free while it's being built. Here's what's already on the bench:</p>
     </div>
     <div class="mt-12 grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
-      <div class="reveal glass card-hover rounded-2xl p-6">
-        <i data-lucide="mic" class="w-6 h-6 text-vovo-300 mb-4"></i>
-        <h3 class="font-heading font-bold text-white text-base mb-2">Voice check-ins</h3>
-        <p class="text-[13px] text-white/50 leading-relaxed">Vovo calls out — literally. Voice notes and spoken accountability.</p>
+      <div class="reveal card card-hover rounded-2xl p-6">
+        <i data-lucide="mic" class="w-6 h-6 text-pine-600 mb-4"></i>
+        <h3 class="font-heading font-bold text-pine-900 text-base mb-2">Voice check-ins</h3>
+        <p class="text-[13px] text-[#5A6B5E] leading-relaxed">Vovo calls out — literally. Voice notes and spoken accountability.</p>
       </div>
-      <div class="reveal glass card-hover rounded-2xl p-6" style="transition-delay:.06s">
-        <i data-lucide="line-chart" class="w-6 h-6 text-vovo-300 mb-4"></i>
-        <h3 class="font-heading font-bold text-white text-base mb-2">Weekly scorecards</h3>
-        <p class="text-[13px] text-white/50 leading-relaxed">A Sunday report on what you actually did vs. what you promised.</p>
+      <div class="reveal card card-hover rounded-2xl p-6" style="transition-delay:.06s">
+        <i data-lucide="line-chart" class="w-6 h-6 text-pine-600 mb-4"></i>
+        <h3 class="font-heading font-bold text-pine-900 text-base mb-2">Weekly scorecards</h3>
+        <p class="text-[13px] text-[#5A6B5E] leading-relaxed">A Sunday report on what you actually did vs. what you promised.</p>
       </div>
-      <div class="reveal glass card-hover rounded-2xl p-6" style="transition-delay:.12s">
-        <i data-lucide="users" class="w-6 h-6 text-vovo-300 mb-4"></i>
-        <h3 class="font-heading font-bold text-white text-base mb-2">Squad mode</h3>
-        <p class="text-[13px] text-white/50 leading-relaxed">Pair with a friend. When one of you slacks, both hear about it.</p>
+      <div class="reveal card card-hover rounded-2xl p-6" style="transition-delay:.12s">
+        <i data-lucide="users" class="w-6 h-6 text-pine-600 mb-4"></i>
+        <h3 class="font-heading font-bold text-pine-900 text-base mb-2">Squad mode</h3>
+        <p class="text-[13px] text-[#5A6B5E] leading-relaxed">Pair with a friend. When one of you slacks, both hear about it.</p>
       </div>
-      <div class="reveal glass card-hover rounded-2xl p-6" style="transition-delay:.18s">
-        <i data-lucide="flame" class="w-6 h-6 text-vovo-300 mb-4"></i>
-        <h3 class="font-heading font-bold text-white text-base mb-2">Streaks & streak rescue</h3>
-        <p class="text-[13px] text-white/50 leading-relaxed">Daily execution streaks — and Vovo escalates when you're about to break one.</p>
+      <div class="reveal card card-hover rounded-2xl p-6" style="transition-delay:.18s">
+        <i data-lucide="flame" class="w-6 h-6 text-candle-500 mb-4"></i>
+        <h3 class="font-heading font-bold text-pine-900 text-base mb-2">Streaks & streak rescue</h3>
+        <p class="text-[13px] text-[#5A6B5E] leading-relaxed">Daily execution streaks — and Vovo escalates when you're about to break one.</p>
       </div>
     </div>
   </div>
@@ -354,25 +349,25 @@ tailwind.config = {
 <section class="relative py-32">
   <div class="mesh"></div>
   <div class="relative max-w-3xl mx-auto px-6 text-center">
-    <img src="/brand/vovo-mark.png" alt="Vovo" class="reveal w-20 h-20 rounded-3xl mx-auto mb-8 shadow-2xl">
-    <h2 class="reveal font-heading font-extrabold text-[clamp(2.25rem,5vw,3.75rem)] text-white leading-tight">Your move.</h2>
-    <p class="reveal mt-5 text-lg text-white/55 max-w-xl mx-auto" style="transition-delay:.08s">
+    <img src="/brand/vovo-mark.png" alt="Vovo" class="reveal w-20 h-20 rounded-3xl mx-auto mb-8 shadow-lg">
+    <h2 class="reveal font-heading font-extrabold text-[clamp(2.25rem,5vw,3.75rem)] text-pine-950 leading-tight">Your move.</h2>
+    <p class="reveal mt-5 text-lg text-[#5A6B5E] max-w-xl mx-auto" style="transition-delay:.08s">
       $5 a month for a coach that never sleeps, never forgets, and never accepts excuses.
     </p>
     <a href="https://buy.stripe.com/14AfZh4VyeBg98wa8IaR200" target="_blank" rel="noopener"
-       class="reveal cta-glow inline-flex items-center gap-2 bg-vovo-500 hover:bg-vovo-400 text-white font-bold px-10 h-14 rounded-2xl text-base mt-10" style="transition-delay:.15s">
+       class="reveal cta inline-flex items-center gap-2 bg-pine-800 hover:bg-pine-700 text-white font-bold px-10 h-14 rounded-2xl text-base mt-10" style="transition-delay:.15s">
       <i data-lucide="zap" class="w-5 h-5"></i> Get Vovo
     </a>
   </div>
 </section>
 
-<footer class="border-t border-white/5 py-10">
-  <div class="max-w-6xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-white/35">
-    <div class="flex items-center gap-2.5 font-heading font-bold text-white/60 text-sm">
+<footer class="border-t border-[#EAEFEA] py-10 bg-white">
+  <div class="max-w-6xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#93A596]">
+    <div class="flex items-center gap-2.5 font-heading font-bold text-pine-800 text-sm">
       <img src="/brand/vovo-mark.png" alt="" class="w-7 h-7 rounded-lg"> Vovo
     </div>
     <p>Accountability, automated. $5/month, cancel anytime.</p>
-    <button onclick="openSignin()" class="hover:text-white/70 transition-colors flex items-center gap-1.5">
+    <button onclick="openSignin()" class="hover:text-pine-700 transition-colors flex items-center gap-1.5">
       <i data-lucide="log-in" class="w-4 h-4"></i> Members sign in
     </button>
   </div>
@@ -380,26 +375,26 @@ tailwind.config = {
 
 <!-- SIGN-IN MODAL -->
 <div id="signin-modal" class="hidden-modal fixed inset-0 z-[60] flex items-center justify-center px-6" role="dialog" aria-modal="true" aria-label="Sign in">
-  <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" onclick="closeSignin()"></div>
-  <div class="modal-card relative glass-strong rounded-3xl p-8 w-full max-w-sm">
-    <button onclick="closeSignin()" aria-label="Close" class="absolute top-4 right-4 text-white/40 hover:text-white transition-colors"><i data-lucide="x" class="w-5 h-5"></i></button>
+  <div class="absolute inset-0 bg-pine-950/40 backdrop-blur-sm" onclick="closeSignin()"></div>
+  <div class="modal-card relative bg-white border border-[#E6EDE6] shadow-2xl rounded-3xl p-8 w-full max-w-sm">
+    <button onclick="closeSignin()" aria-label="Close" class="absolute top-4 right-4 text-[#93A596] hover:text-pine-800 transition-colors"><i data-lucide="x" class="w-5 h-5"></i></button>
     <div class="flex items-center gap-3 mb-2">
       <img src="/brand/vovo-mark.png" alt="" class="w-10 h-10 rounded-xl">
-      <h3 class="font-heading font-bold text-xl text-white">Members sign in</h3>
+      <h3 class="font-heading font-bold text-xl text-pine-950">Members sign in</h3>
     </div>
-    <p class="text-sm text-white/50 mb-6">Enter your access code. Members get one after subscribing; the owner password unlocks full free access.</p>
+    <p class="text-sm text-[#5A6B5E] mb-6">Enter your access code. Members get one after subscribing; the owner password unlocks full free access.</p>
     <form onsubmit="return doSignin(event)">
-      <label class="block text-xs font-medium text-white/50 mb-2" for="access-code">Access code</label>
+      <label class="block text-xs font-medium text-[#5A6B5E] mb-2" for="access-code">Access code</label>
       <input id="access-code" type="password" autocomplete="current-password" required
-             class="w-full h-12 rounded-xl bg-white/5 border border-white/10 px-4 text-white placeholder-white/30 focus:outline-none focus:border-vovo-400 focus:ring-2 focus:ring-vovo-500/20 transition"
+             class="w-full h-12 rounded-xl bg-[#F6F9F4] border border-[#DCE8DC] px-4 text-pine-950 placeholder-[#A8BAAA] focus:outline-none focus:border-pine-500 focus:ring-2 focus:ring-pine-200 transition"
              placeholder="e.g. VOVO-XXXX or owner password">
-      <p id="signin-error" class="hidden text-xs text-red-400 mt-2"></p>
+      <p id="signin-error" class="hidden text-xs text-red-600 mt-2"></p>
       <button type="submit" id="signin-btn"
-              class="cta-glow mt-5 w-full h-12 rounded-xl bg-vovo-500 hover:bg-vovo-400 text-white font-bold text-sm flex items-center justify-center gap-2">
+              class="cta mt-5 w-full h-12 rounded-xl bg-pine-800 hover:bg-pine-700 text-white font-bold text-sm flex items-center justify-center gap-2">
         <i data-lucide="log-in" class="w-4 h-4"></i> Sign in
       </button>
     </form>
-    <p class="mt-5 text-center text-xs text-white/35">No code yet? <a href="https://buy.stripe.com/14AfZh4VyeBg98wa8IaR200" class="text-vovo-300 hover:text-vovo-200 underline underline-offset-2">Subscribe for $5/mo</a></p>
+    <p class="mt-5 text-center text-xs text-[#93A596]">No code yet? <a href="https://buy.stripe.com/14AfZh4VyeBg98wa8IaR200" class="text-pine-700 hover:text-pine-800 underline underline-offset-2">Subscribe for $5/mo</a></p>
   </div>
 </div>
 
