@@ -15,6 +15,7 @@ if (!redis && process.env.DATABASE_URL) {
 let tableReady = false;
 async function ensureTable() {
   if (tableReady) return;
+  try {
   await sql`CREATE TABLE IF NOT EXISTS vovo_users (
     user_id TEXT PRIMARY KEY,
     name TEXT,
@@ -24,6 +25,10 @@ async function ensureTable() {
     history JSONB NOT NULL DEFAULT '[]'::jsonb,
     updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
   )`;
+  } catch (e) {
+    // concurrent first-run CREATE TABLE races are fine — the table exists either way
+    if (!/already exists|pg_type_typname_nsp_index/i.test(e.message)) throw e;
+  }
   tableReady = true;
 }
 
